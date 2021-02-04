@@ -95,10 +95,6 @@ public class AutoplayManager : MonoBehaviour
             if(lineComplete)
             {
                 StartCoroutine(NextLine());
-                //if(Input.GetMouseButtonDown(0))
-                //{
-                //    NextLine();
-                //}
             }
         }
     }
