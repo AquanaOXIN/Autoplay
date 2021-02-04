@@ -1,0 +1,11 @@
+[BackgroundName] -- 当前背景（编号）
+[CharacterName] -- 当前说话角色（string）
+[CharacterPosition] -- 当前说话角色在屏幕中的位置 （编号）
+[CharacterMood] -- 当前说话角色心情/表情（编号）
+[CharacterDialog] -- 当前说话角色所说文本
+// [LeaveCharacter #] -- 离开几位角色
+// [LeftCharacterName] -- 离开的角色名称
+// [LeftCharacterName] -- 离开的角色名称
+// [LeftCharacterName] -- 离开的角色名称
+// ...
+//
