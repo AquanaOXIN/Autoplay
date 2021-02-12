@@ -555,6 +555,8 @@ MonoBehaviour:
   dialogDisplay: {fileID: 715591579}
   characterNameBox: {fileID: 869337810}
   nameDisplay: {fileID: 840920806}
+  audio: {fileID: 1817860119}
+  mainMixer: {fileID: 24100000, guid: bce5c582ad5c2574cb0d53d445875a51, type: 2}
   txtFiles:
   - {fileID: 4900000, guid: 2e30913e10ea60f49861fb1662352404, type: 3}
   typingSpeed: 0.01
@@ -1456,7 +1458,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0

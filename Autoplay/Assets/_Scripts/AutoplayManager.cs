@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Audio;
 using TMPro;
+
 
 
 public class AutoplayManager : MonoBehaviour
@@ -39,6 +41,13 @@ public class AutoplayManager : MonoBehaviour
     private GameObject characterNameBox = default;
     [SerializeField]
     private TextMeshProUGUI nameDisplay = default;
+
+    [Header("Audio Elements")]
+    [SerializeField]
+    private AudioSource audio = default;
+    [SerializeField]
+    private AudioMixer mainMixer = default;
+
 
     [Header("Files")]
     [SerializeField]
@@ -80,6 +89,8 @@ public class AutoplayManager : MonoBehaviour
         nextButton.SetActive(false);
         index = 0;
         lineComplete = false;
+
+        mainMixer.SetFloat("Pitch", 1.25f);
 
         ImportScene(0);
     }
