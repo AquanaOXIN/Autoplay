@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Audio;
 using TMPro;
+using System.Text.RegularExpressions;
+using System.IO;
 
 
 
@@ -48,6 +50,10 @@ public class AutoplayManager : MonoBehaviour
     [SerializeField]
     private AudioMixer mainMixer = default;
 
+    private int char0Counter = 0;
+    private int char1Counter = 0;
+    private AudioClip[] char0Clips;
+    private AudioClip[] char1Clips;
 
     [Header("Files")]
     [SerializeField]
@@ -70,6 +76,9 @@ public class AutoplayManager : MonoBehaviour
 
     private void Start()
     {
+        char0Clips = Resources.LoadAll<AudioClip>("Audio/Greenal");
+        char1Clips = Resources.LoadAll<AudioClip>("Audio/石头");
+
         rawLines = new List<string>();
         backgrounds = new List<int>();
         characters = new List<string>();
@@ -89,8 +98,9 @@ public class AutoplayManager : MonoBehaviour
         nextButton.SetActive(false);
         index = 0;
         lineComplete = false;
-
-        mainMixer.SetFloat("Pitch", 1.25f);
+        // mainMixer.SetFloat("Pitch", 1.25f);
+        // Greenal Mixer Pitch 1.02f
+        // Shitou Mixer Pitch 0.92f
 
         ImportScene(0);
     }
@@ -123,52 +133,65 @@ public class AutoplayManager : MonoBehaviour
         fullLog = txt.text;
         rawLines.AddRange(fullLog.Split("\n"[0]));
 
-        for(int i = 0; i< rawLines.Count; i += 5)
-        {
-            bool formatCheck = int.TryParse(rawLines[i], out int result);
-            if(formatCheck)
-            {
-                backgrounds.Add(result);
-            }
-            else
-            {
-                Debug.Log("Log content format error!");
-            }
-        }
+        string splitPattern0 = @"^\[";
+        string splitPattern1 = @"\]\:";
 
-        for (int i = 1; i < rawLines.Count; i += 5)
+        for (int i = 0; i < rawLines.Count; i++)
         {
-            characters.Add(rawLines[i]);
-        }
+            string[] lineParts0 = Regex.Split(rawLines[i], splitPattern0);
+            string[] lineParts1 = Regex.Split(lineParts0[1], splitPattern1);
 
-        for (int i = 2; i < rawLines.Count; i += 5)
-        {
-            bool formatCheck = int.TryParse(rawLines[i], out int result);
-            if (formatCheck)
-            {
-                characterPositions.Add(result);
-            }
-            else
-            {
-                Debug.Log("Log content format error!");
-            }
+            characters.Add(lineParts1[0]);
+            // Debug.Log(characters[i]);
+            sentences.Add(lineParts1[1]);
         }
-        for (int i = 3; i < rawLines.Count - 1; i += 5)
-        {
-            bool formatCheck = int.TryParse(rawLines[i], out int result);
-            if (formatCheck)
-            {
-                emotes.Add(result);
-            }
-            else
-            {
-                Debug.Log("Log content format error!");
-            }
-        }
-        for (int i = 4; i < rawLines.Count ; i += 5)
-        {
-            sentences.Add(rawLines[i]);
-        }
+       
+        //for(int i = 0; i< rawLines.Count; i += 5)
+        //{
+        //    bool formatCheck = int.TryParse(rawLines[i], out int result);
+        //    if(formatCheck)
+        //    {
+        //        backgrounds.Add(result);
+        //    }
+        //    else
+        //    {
+        //        Debug.Log("Log content format error!");
+        //    }
+        //}
+
+        //for (int i = 1; i < rawLines.Count; i += 5)
+        //{
+        //    characters.Add(rawLines[i]);
+        //}
+
+        //for (int i = 2; i < rawLines.Count; i += 5)
+        //{
+        //    bool formatCheck = int.TryParse(rawLines[i], out int result);
+        //    if (formatCheck)
+        //    {
+        //        characterPositions.Add(result);
+        //    }
+        //    else
+        //    {
+        //        Debug.Log("Log content format error!");
+        //    }
+        //}
+        //for (int i = 3; i < rawLines.Count - 1; i += 5)
+        //{
+        //    bool formatCheck = int.TryParse(rawLines[i], out int result);
+        //    if (formatCheck)
+        //    {
+        //        emotes.Add(result);
+        //    }
+        //    else
+        //    {
+        //        Debug.Log("Log content format error!");
+        //    }
+        //}
+        //for (int i = 4; i < rawLines.Count ; i += 5)
+        //{
+        //    sentences.Add(rawLines[i]);
+        //}
     }
 
     private void PromptDialog(TextAsset txt)
@@ -183,30 +206,50 @@ public class AutoplayManager : MonoBehaviour
     {
         if (index != 0)
         {
-            if (backgrounds[index] != backgrounds[index - 1])
-            {
-                backgroundUI.GetComponent<Image>().sprite = backgroundImgs[backgrounds[index]];
+            //if (backgrounds[index] != backgrounds[index - 1])
+            //{
+            //    backgroundUI.GetComponent<Image>().sprite = backgroundImgs[backgrounds[index]];
 
-            }
+            //}
             if (characters[index] != characters[index - 1])
             {
                 nameDisplay.text = characters[index].ToString();
             }
-            if (characterPositions[index] != characterPositions[index - 1])
-            {
-                characterUILoc[characterPositions[index]].SetActive(true);
-            }
-            if (emotes[index] != emotes[index - 1])
-            {
-                characterUILoc[characterPositions[index]].GetComponent<Image>().sprite = characterImgs[emotes[index]];
-            }
+
+            //if (characterPositions[index] != characterPositions[index - 1])
+            //{
+            //    characterUILoc[characterPositions[index]].SetActive(true);
+            //}
+            //if (emotes[index] != emotes[index - 1])
+            //{
+            //    characterUILoc[characterPositions[index]].GetComponent<Image>().sprite = characterImgs[emotes[index]];
+            //}
         }
         else if (index == 0)
         {
-            backgroundUI.GetComponent<Image>().sprite = backgroundImgs[backgrounds[index]];
+            //backgroundUI.GetComponent<Image>().sprite = backgroundImgs[backgrounds[index]];
             nameDisplay.text = characters[index].ToString();
-            characterUILoc[characterPositions[index]].SetActive(true);
-            characterUILoc[characterPositions[index]].GetComponent<Image>().sprite = characterImgs[emotes[index]];
+
+            //characterUILoc[characterPositions[index]].SetActive(true);
+            //characterUILoc[characterPositions[index]].GetComponent<Image>().sprite = characterImgs[emotes[index]];
+        }
+
+        // audio
+        if (nameDisplay.text == "Greenal")
+        {
+            audio.clip = char0Clips[char0Counter];
+            readingSpeed = char0Clips[char0Counter].length;
+            mainMixer.SetFloat("Pitch", 1.02f);
+            audio.Play();
+            char0Counter++;
+        }
+        else if (nameDisplay.text == "石头")
+        {
+            audio.clip = char1Clips[char1Counter];
+            readingSpeed = char1Clips[char1Counter].length;
+            mainMixer.SetFloat("Pitch", 0.92f);
+            audio.Play();
+            char1Counter++;
         }
 
         foreach (char letter in sentences[index].ToCharArray())
@@ -222,6 +265,7 @@ public class AutoplayManager : MonoBehaviour
 
         if (index < sentences.Count - 1)
         {
+            // Debug.Log(index);
             index++;
             yield return new WaitForSeconds(readingSpeed);
             dialogDisplay.text = "";

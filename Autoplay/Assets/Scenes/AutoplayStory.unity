@@ -558,7 +558,7 @@ MonoBehaviour:
   audio: {fileID: 1817860119}
   mainMixer: {fileID: 24100000, guid: bce5c582ad5c2574cb0d53d445875a51, type: 2}
   txtFiles:
-  - {fileID: 4900000, guid: 2e30913e10ea60f49861fb1662352404, type: 3}
+  - {fileID: 4900000, guid: 1f878369682cda646be7ba227de24b9b, type: 3}
   typingSpeed: 0.01
   nextButton: {fileID: 263532789}
 --- !u!4 &490282282
@@ -1454,11 +1454,11 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: bce5c582ad5c2574cb0d53d445875a51, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 6a55484d48118e64e8c5566d3be39b4e, type: 3}
-  m_PlayOnAwake: 1
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
