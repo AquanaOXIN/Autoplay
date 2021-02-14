@@ -8,8 +8,6 @@ using TMPro;
 using System.Text.RegularExpressions;
 using System.IO;
 
-
-
 public class AutoplayManager : MonoBehaviour
 {
     [Header("Scene Input Files")]
