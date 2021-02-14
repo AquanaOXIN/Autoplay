@@ -12,6 +12,14 @@ using System.IO;
 
 public class AutoplayManager : MonoBehaviour
 {
+    [Header("Scene Input Files")]
+    [SerializeField]
+    private TextAsset[] txtFiles = default;
+
+    [Header("Characters")]
+    [SerializeField]
+    private string[] characterNames = default;
+
     [Header("UI Elements")]
     [SerializeField]
     private GameObject mainCanvas = default;
@@ -21,18 +29,6 @@ public class AutoplayManager : MonoBehaviour
     private Sprite[] backgroundImgs = default;
     [SerializeField]
     private GameObject[] characterUILoc = default;
-    //[SerializeField]
-    //private Sprite[][] characterImgs = default;
-    //[SerializeField]
-    //private Sprite[] character1_Imgs = default;
-    //[SerializeField]
-    //private Sprite[] character2_Imgs = default;
-    //[SerializeField]
-    //private Sprite[] character3_Imgs = default;
-    //[SerializeField]
-    //private Sprite[] character4_Imgs = default;
-    //[SerializeField]
-    //private Sprite[] character5_Imgs = default;
     [SerializeField]
     private Sprite[] characterImgs = default;
     [SerializeField]
@@ -55,10 +51,6 @@ public class AutoplayManager : MonoBehaviour
     private AudioClip[] char0Clips;
     private AudioClip[] char1Clips;
 
-    [Header("Files")]
-    [SerializeField]
-    private TextAsset[] txtFiles = default;
-
     [Header("Variables")]
     private string fullLog = default;
     private List<string> rawLines = default;
@@ -68,16 +60,15 @@ public class AutoplayManager : MonoBehaviour
     private List<int> emotes = default;
     private List<string> sentences = default;
     private int index = 0;
+    [Range(0f, 0.1f)]
     public float typingSpeed = 0.01f;
     private float readingSpeed = 1.5f;
     private bool lineComplete = false;
 
-    public GameObject nextButton;
-
     private void Start()
     {
-        char0Clips = Resources.LoadAll<AudioClip>("Audio/Greenal");
-        char1Clips = Resources.LoadAll<AudioClip>("Audio/石头");
+        char0Clips = Resources.LoadAll<AudioClip>("Audio/" + characterNames[0]);
+        char1Clips = Resources.LoadAll<AudioClip>("Audio/" + characterNames[1]);
 
         rawLines = new List<string>();
         backgrounds = new List<int>();
@@ -95,10 +86,9 @@ public class AutoplayManager : MonoBehaviour
             }
         }
 
-        nextButton.SetActive(false);
         index = 0;
         lineComplete = false;
-        // mainMixer.SetFloat("Pitch", 1.25f);
+
         // Greenal Mixer Pitch 1.02f
         // Shitou Mixer Pitch 0.92f
 
@@ -157,40 +147,6 @@ public class AutoplayManager : MonoBehaviour
         //    {
         //        Debug.Log("Log content format error!");
         //    }
-        //}
-
-        //for (int i = 1; i < rawLines.Count; i += 5)
-        //{
-        //    characters.Add(rawLines[i]);
-        //}
-
-        //for (int i = 2; i < rawLines.Count; i += 5)
-        //{
-        //    bool formatCheck = int.TryParse(rawLines[i], out int result);
-        //    if (formatCheck)
-        //    {
-        //        characterPositions.Add(result);
-        //    }
-        //    else
-        //    {
-        //        Debug.Log("Log content format error!");
-        //    }
-        //}
-        //for (int i = 3; i < rawLines.Count - 1; i += 5)
-        //{
-        //    bool formatCheck = int.TryParse(rawLines[i], out int result);
-        //    if (formatCheck)
-        //    {
-        //        emotes.Add(result);
-        //    }
-        //    else
-        //    {
-        //        Debug.Log("Log content format error!");
-        //    }
-        //}
-        //for (int i = 4; i < rawLines.Count ; i += 5)
-        //{
-        //    sentences.Add(rawLines[i]);
         //}
     }
 
