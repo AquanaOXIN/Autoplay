@@ -22,6 +22,8 @@ public class AutoplayManager : MonoBehaviour
     [SerializeField]
     private GameObject mainCanvas = default;
     [SerializeField]
+    private GameObject foregroundUI = default;
+    [SerializeField]
     private GameObject backgroundUI = default;
     [SerializeField]
     private Sprite[] backgroundImgs = default;
@@ -65,6 +67,7 @@ public class AutoplayManager : MonoBehaviour
 
     private void Start()
     {
+        foregroundUI.SetActive(true);
         char0Clips = Resources.LoadAll<AudioClip>("Audio/" + characterNames[0]);
         char1Clips = Resources.LoadAll<AudioClip>("Audio/" + characterNames[1]);
 
@@ -90,7 +93,7 @@ public class AutoplayManager : MonoBehaviour
         // Greenal Mixer Pitch 1.02f
         // Shitou Mixer Pitch 0.92f
 
-        ImportScene(0);
+        StartCoroutine(LoadingScene());
     }
 
     private void Update()
@@ -108,7 +111,46 @@ public class AutoplayManager : MonoBehaviour
         }
     }
 
-    private void ImportScene(int scene_num)
+    private IEnumerator BlackIn(GameObject go, float duration)
+    {
+        float t = 0;
+        float startAlpha = go.GetComponent<CanvasRenderer>().GetAlpha();
+
+        while(t < duration)
+        {
+            go.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(startAlpha, 0f, t / duration));
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+        // go.GetComponent<CanvasRenderer>().SetAlpha(0f);
+    }
+
+    private IEnumerator NoiseTVEffect(GameObject go, float duration)
+    {
+        float t = 0;
+        float startEdge = 0.25f;
+        float endEdge = 0f;
+        go.GetComponent<Image>().material.SetFloat("Step Edge", startEdge);
+
+        while (t < duration)
+        {
+            go.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(startEdge, endEdge, t / duration));
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+        // go.GetComponent<Image>().material.SetFloat("Step Edge", endEdge);
+    }
+
+    private IEnumerator LoadingScene()
+    {
+        StartCoroutine(BlackIn(foregroundUI, 3f));
+        yield return new WaitForSeconds(1f);
+        ImportDialog(0);
+    }
+
+    private void ImportDialog(int scene_num)
     {
         if(txtFiles.Length > 0)
         {
