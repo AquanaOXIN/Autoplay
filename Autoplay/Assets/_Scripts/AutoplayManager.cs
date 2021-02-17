@@ -230,7 +230,8 @@ public class AutoplayManager : MonoBehaviour
             nameDisplay.text = characters[index].ToString();
 
             // glitch2D.SetFloat("Vector1_AD7F5818", 1f);
-            
+            // characterUILoc[0].GetComponent<CanvasRenderer>().SetAlpha(0.3f);
+
             //characterUILoc[characterPositions[index]].SetActive(true);
             //characterUILoc[characterPositions[index]].GetComponent<Image>().sprite = characterImgs[emotes[index]];
         }
