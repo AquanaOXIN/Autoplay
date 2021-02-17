@@ -402,11 +402,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   txtFiles:
-  - {fileID: 4900000, guid: d8e821507327c3545b5e27824d5d74c0, type: 3}
-  sceneName: "\u8F66\u5361\u56DE"
+  - {fileID: 4900000, guid: 24db3108f312dd04198e204629719a0d, type: 3}
+  sceneName: "\u7B2C\u4E00\u56DE"
   characterNames:
-  - Greenal
-  - "\u77F3\u5934"
+  - KP
+  - Paz
   mainCanvas: {fileID: 299644972}
   foregroundUI: {fileID: 1781540996}
   backgroundUI: {fileID: 2054291953}
@@ -1580,7 +1580,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1910879774
 Transform:
   m_ObjectHideFlags: 0
@@ -1607,7 +1607,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 35eaec598505d43e8afe0b46cf0b55ab, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.146
   m_Pitch: 1
   Loop: 1
   Mute: 0
