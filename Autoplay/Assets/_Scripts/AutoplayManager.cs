@@ -52,6 +52,7 @@ public class AutoplayManager : MonoBehaviour
     private AudioClip[] char1Clips;
 
     [Header("Variables")]
+    public Material glitch2D = default;
     private string fullLog = default;
     private List<string> rawLines = default;
     private List<int> backgrounds = default;
@@ -86,6 +87,8 @@ public class AutoplayManager : MonoBehaviour
                 p.SetActive(false);
             }
         }
+
+        // characterUILoc[0].SetActive(true);
 
         index = 0;
         lineComplete = false;
@@ -226,6 +229,8 @@ public class AutoplayManager : MonoBehaviour
             //backgroundUI.GetComponent<Image>().sprite = backgroundImgs[backgrounds[index]];
             nameDisplay.text = characters[index].ToString();
 
+            // glitch2D.SetFloat("Vector1_AD7F5818", 1f);
+            
             //characterUILoc[characterPositions[index]].SetActive(true);
             //characterUILoc[characterPositions[index]].GetComponent<Image>().sprite = characterImgs[emotes[index]];
         }
