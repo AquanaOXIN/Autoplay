@@ -13,6 +13,8 @@ public class AutoplayManager : MonoBehaviour
     [Header("Scene Input Files")]
     [SerializeField]
     private TextAsset[] txtFiles = default;
+    [SerializeField]
+    private string sceneName = default;
 
     [Header("Characters")]
     [SerializeField]
@@ -69,8 +71,8 @@ public class AutoplayManager : MonoBehaviour
     private void Start()
     {
         foregroundUI.SetActive(true);
-        char0Clips = Resources.LoadAll<AudioClip>("Audio/" + characterNames[0]);
-        char1Clips = Resources.LoadAll<AudioClip>("Audio/" + characterNames[1]);
+        char0Clips = Resources.LoadAll<AudioClip>("Audio/"+ sceneName+ "/" + characterNames[0]);
+        char1Clips = Resources.LoadAll<AudioClip>("Audio/" + sceneName + "/" + characterNames[1]);
 
         rawLines = new List<string>();
         backgrounds = new List<int>();
@@ -149,7 +151,7 @@ public class AutoplayManager : MonoBehaviour
     private IEnumerator LoadingScene()
     {
         StartCoroutine(BlackIn(foregroundUI, 3f));
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
         ImportDialog(0);
     }
 
@@ -171,12 +173,16 @@ public class AutoplayManager : MonoBehaviour
 
         for (int i = 0; i < rawLines.Count; i++)
         {
-            string[] lineParts0 = Regex.Split(rawLines[i], splitPattern0);
-            string[] lineParts1 = Regex.Split(lineParts0[1], splitPattern1);
+            if(rawLines[i].Length > 0)
+            {
+                string[] lineParts0 = Regex.Split(rawLines[i], splitPattern0);
+                string[] lineParts1 = Regex.Split(lineParts0[1], splitPattern1);
+                characters.Add(lineParts1[0]);
 
-            characters.Add(lineParts1[0]);
-            // Debug.Log(characters[i]);
-            sentences.Add(lineParts1[1]);
+                // Debug.Log(lineParts1[0]);
+                // Debug.Log(characters[i]);
+                sentences.Add(lineParts1[1]);
+            }
         }
        
         //for(int i = 0; i< rawLines.Count; i += 5)
@@ -237,21 +243,39 @@ public class AutoplayManager : MonoBehaviour
         }
 
         // audio
-        if (nameDisplay.text == "Greenal")
+        if (nameDisplay.text == characterNames[0])
         {
             audio.clip = char0Clips[char0Counter];
-            readingSpeed = char0Clips[char0Counter].length;
-            mainMixer.SetFloat("Pitch", 1.02f);
+            if (char0Clips[char0Counter].length > 0)
+            {
+                readingSpeed = char0Clips[char0Counter].length;
+            }
+            else
+            {
+                readingSpeed = 3.0f;
+            }
+            mainMixer.SetFloat("Pitch", 1.25f);
             audio.Play();
             char0Counter++;
         }
-        else if (nameDisplay.text == "石头")
+        else if (nameDisplay.text == characterNames[1])
         {
             audio.clip = char1Clips[char1Counter];
-            readingSpeed = char1Clips[char1Counter].length;
-            mainMixer.SetFloat("Pitch", 0.92f);
+            if(char1Clips[char1Counter].length > 0)
+            {
+                readingSpeed = char1Clips[char1Counter].length;
+            }
+            else
+            {
+                readingSpeed = 3.0f;
+            }
+            mainMixer.SetFloat("Pitch", 0.97f);
             audio.Play();
             char1Counter++;
+        }
+        else
+        {
+            readingSpeed = 5.0f;
         }
 
         foreach (char letter in sentences[index].ToCharArray())

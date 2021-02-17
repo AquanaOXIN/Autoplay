@@ -403,6 +403,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   txtFiles:
   - {fileID: 4900000, guid: d8e821507327c3545b5e27824d5d74c0, type: 3}
+  sceneName: "\u8F66\u5361\u56DE"
   characterNames:
   - Greenal
   - "\u77F3\u5934"
@@ -1402,7 +1403,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: bce5c582ad5c2574cb0d53d445875a51, type: 2}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: f5b55e9739894c74f946124a35f13cb6, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -1579,7 +1580,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1910879774
 Transform:
   m_ObjectHideFlags: 0
