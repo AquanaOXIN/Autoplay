@@ -21,30 +21,30 @@ public class AutoplayManager : MonoBehaviour
     private string[] characterNames = default;
 
     [Header("UI Elements")]
-    [SerializeField]
-    private GameObject mainCanvas = default;
+    //[SerializeField]
+    //private GameObject mainCanvas = default;
     [SerializeField]
     private GameObject foregroundUI = default;
-    [SerializeField]
-    private GameObject backgroundUI = default;
-    [SerializeField]
-    private Sprite[] backgroundImgs = default;
-    [SerializeField]
-    private GameObject[] characterUILoc = default;
-    [SerializeField]
-    private Sprite[] characterImgs = default;
+    //[SerializeField]
+    //private GameObject backgroundUI = default;
+    //[SerializeField]
+    //private Sprite[] backgroundImgs = default;
+    //[SerializeField]
+    //private GameObject[] characterUILoc = default;
+    //[SerializeField]
+    //private Sprite[] characterImgs = default;
     [SerializeField]
     private GameObject dialogUI = default;
     [SerializeField]
     private TextMeshProUGUI dialogDisplay = default;
-    [SerializeField]
-    private GameObject characterNameBox = default;
+    //[SerializeField]
+    //private GameObject characterNameBox = default;
     [SerializeField]
     private TextMeshProUGUI nameDisplay = default;
 
     [Header("Audio Elements")]
     [SerializeField]
-    private AudioSource audio = default;
+    private AudioSource dialogAudio = default;
     [SerializeField]
     private AudioMixer mainMixer = default;
 
@@ -82,13 +82,13 @@ public class AutoplayManager : MonoBehaviour
         sentences = new List<string>();
 
         dialogUI.SetActive(false);
-        if(characterUILoc.Length > 0)
-        {
-            foreach(GameObject p in characterUILoc)
-            {
-                p.SetActive(false);
-            }
-        }
+        //if(characterUILoc.Length > 0)
+        //{
+        //    foreach(GameObject p in characterUILoc)
+        //    {
+        //        p.SetActive(false);
+        //    }
+        //}
 
         // characterUILoc[0].SetActive(true);
 
@@ -242,10 +242,10 @@ public class AutoplayManager : MonoBehaviour
             //characterUILoc[characterPositions[index]].GetComponent<Image>().sprite = characterImgs[emotes[index]];
         }
 
-        // audio
+        // dialogAudio
         if (nameDisplay.text == characterNames[0])
         {
-            audio.clip = char0Clips[char0Counter];
+            dialogAudio.clip = char0Clips[char0Counter];
             if (char0Clips[char0Counter].length > 0)
             {
                 readingSpeed = char0Clips[char0Counter].length;
@@ -255,12 +255,12 @@ public class AutoplayManager : MonoBehaviour
                 readingSpeed = 3.0f;
             }
             mainMixer.SetFloat("Pitch", 1.25f);
-            audio.Play();
+            dialogAudio.PlayDelayed(0.5f);
             char0Counter++;
         }
         else if (nameDisplay.text == characterNames[1])
         {
-            audio.clip = char1Clips[char1Counter];
+            dialogAudio.clip = char1Clips[char1Counter];
             if(char1Clips[char1Counter].length > 0)
             {
                 readingSpeed = char1Clips[char1Counter].length;
@@ -270,12 +270,12 @@ public class AutoplayManager : MonoBehaviour
                 readingSpeed = 3.0f;
             }
             mainMixer.SetFloat("Pitch", 0.97f);
-            audio.Play();
+            dialogAudio.PlayDelayed(0.5f);
             char1Counter++;
         }
         else
         {
-            readingSpeed = 5.0f;
+            readingSpeed = 2.0f;
         }
 
         foreach (char letter in sentences[index].ToCharArray())
