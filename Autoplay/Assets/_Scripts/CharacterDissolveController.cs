@@ -21,6 +21,7 @@ public class CharacterDissolveController : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Space))
         {
             isDissolving = true;
+            StartCoroutine(DelayedInstantiate(scatterPS, 0.15f));
         }
 
         if(isDissolving)
@@ -28,11 +29,16 @@ public class CharacterDissolveController : MonoBehaviour
             fade -= Time.deltaTime;
             if(fade <= 0f)
             {
-                fade = 0f;
-                // GameObject scatterObj = Instantiate(scatterPS, transform.position, Quaternion.identity);
+                fade = 0f; 
                 isDissolving = false;
             }
             material.SetFloat("_Fade", fade);
         }
+    }
+
+    private IEnumerator DelayedInstantiate(GameObject _go, float delayTime)
+    {
+        yield return new WaitForSeconds(delayTime);
+        GameObject go = Instantiate(_go, transform.position, Quaternion.identity);
     }
 }

@@ -446,7 +446,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &594596995
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -524,7 +524,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a4fe7c3a8950e844af66a86977ec8bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scatterPS: {fileID: 0}
+  scatterPS: {fileID: 1107055041482845880, guid: 359568f211ee57443b1f131b1b0b6d8b, type: 3}
 --- !u!1 &624890310
 GameObject:
   m_ObjectHideFlags: 0
@@ -1826,7 +1826,7 @@ GameObject:
   - component: {fileID: 1985481934}
   - component: {fileID: 1985481933}
   m_Layer: 0
-  m_Name: BG1
+  m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1872,7 +1872,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -1
-  m_Sprite: {fileID: 21300000, guid: 34a89de1181bb5d4180a2875d21d6d1f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a3791eb12cb02184e9f4d34ea93da3ad, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1912,7 +1912,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2044555574
 Transform:
   m_ObjectHideFlags: 0
