@@ -10,6 +10,9 @@ using System.IO;
 
 public class AutoplayManager : MonoBehaviour
 {
+    public AudioClip diceRoll;
+    public GameObject diceImg;
+
     [Header("Scene Input Files")]
     [SerializeField]
     private TextAsset[] txtFiles = default;
@@ -70,6 +73,7 @@ public class AutoplayManager : MonoBehaviour
 
     private void Start()
     {
+        diceImg.SetActive(false);
         foregroundUI.SetActive(true);
         char0Clips = Resources.LoadAll<AudioClip>("Audio/"+ sceneName+ "/" + characterNames[0]);
         char1Clips = Resources.LoadAll<AudioClip>("Audio/" + sceneName + "/" + characterNames[1]);
@@ -82,6 +86,7 @@ public class AutoplayManager : MonoBehaviour
         sentences = new List<string>();
 
         dialogUI.SetActive(false);
+
         //if(characterUILoc.Length > 0)
         //{
         //    foreach(GameObject p in characterUILoc)
@@ -273,9 +278,14 @@ public class AutoplayManager : MonoBehaviour
             dialogAudio.PlayDelayed(0.5f);
             char1Counter++;
         }
-        else
+        else if (nameDisplay.text == "ROLL")
         {
-            readingSpeed = 2.0f;
+            diceImg.SetActive(true);
+            dialogAudio.clip = diceRoll;
+            mainMixer.SetFloat("Pitch", 1f);
+            dialogAudio.PlayDelayed(0.5f);
+            readingSpeed = 3.0f;
+            StartCoroutine(DelayedSetActive(diceImg, false, 2f));
         }
 
         foreach (char letter in sentences[index].ToCharArray())
@@ -311,5 +321,12 @@ public class AutoplayManager : MonoBehaviour
             emotes = new List<int>();
             sentences = new List<string>();
         }
+    }
+
+    private IEnumerator DelayedSetActive(GameObject _go, bool _active, float delayTime)
+    {
+
+        yield return new WaitForSeconds(delayTime);
+        _go.SetActive(_active);
     }
 }
