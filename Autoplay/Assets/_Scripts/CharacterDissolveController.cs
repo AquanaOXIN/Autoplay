@@ -10,7 +10,7 @@ public class CharacterDissolveController : MonoBehaviour
     bool isDissolving = false;
 
     float fade = 1f;
-    float cutOffHeight = 7.8f;
+    // float cutOffHeight = 7.8f;
 
     private GameObject scatterIns = default;
     public Transform startPos = default;

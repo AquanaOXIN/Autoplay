@@ -10,6 +10,9 @@ using System.IO;
 
 public class AutoplayManager : MonoBehaviour
 {
+    public Characters testCharacter = default;
+    public GameObject dialogBackgroundContainer = default;
+    public GameObject nameDisplayContainer = default;
     public AudioClip diceRoll;
     public GameObject diceImg;
 
@@ -73,6 +76,9 @@ public class AutoplayManager : MonoBehaviour
 
     private void Start()
     {
+        GameObject dialogBG = Instantiate(testCharacter.dialogUIPosObj, dialogBackgroundContainer.transform.position, Quaternion.identity);
+        dialogBG.transform.SetParent(dialogBackgroundContainer.transform, true);
+
         diceImg.SetActive(false);
         foregroundUI.SetActive(true);
         char0Clips = Resources.LoadAll<AudioClip>("Audio/"+ sceneName+ "/" + characterNames[0]);
@@ -157,7 +163,7 @@ public class AutoplayManager : MonoBehaviour
     {
         StartCoroutine(BlackIn(foregroundUI, 3f));
         yield return new WaitForSeconds(2f);
-        ImportDialog(0);
+        //ImportDialog(0);
     }
 
     private void ImportDialog(int scene_num)
