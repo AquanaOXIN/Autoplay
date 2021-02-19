@@ -51,6 +51,10 @@ public class AutoplayManager : MonoBehaviour
     private TextMeshProUGUI nameDisplay = default;
     [SerializeField]
     private Image KPAvatar = default;
+    [SerializeField]
+    private GameObject ItemUI = default;
+    [SerializeField]
+    private Image ItemDisplay = default;
 
     [Header("Level Elements")]
     [SerializeField]
@@ -79,10 +83,12 @@ public class AutoplayManager : MonoBehaviour
     private Hashtable lineCounter = default;
 
     public bool debugMode = false;
+    public Sprite KPstandby = default;
 
     private void Start()
     {
         foregroundUI.SetActive(true);
+        ItemUI.SetActive(false);
 
         loadingTime = 2f;
         typingSpeed = 0.01f;
@@ -98,7 +104,6 @@ public class AutoplayManager : MonoBehaviour
             c.LoadVoiceAudioFiles(currentScene);
             lineCounter.Add(c.name, (int)0);
         }
-
         progIndex = 0;
         lineComplete = false;
 
@@ -184,6 +189,13 @@ public class AutoplayManager : MonoBehaviour
         {
 
         }
+        else if (currTag == "Item")
+        {
+            ItemUI.SetActive(true);
+            ItemDisplay.sprite = items[0].itemImg;
+            ItemDisplay.SetNativeSize();
+            DelayedSetActive(ItemUI, false, 3.0f);
+        }
         else
         {
             for (int i = 0; i < characters.Length; i++)
@@ -200,7 +212,7 @@ public class AutoplayManager : MonoBehaviour
                         }
                         else
                         {
-                            KPAvatar.sprite = null;
+                            KPAvatar.sprite = KPstandby;
                             nameDisplay.text = characters[i].name.ToString();
                             characterSR.sprite = characters[i].poses[0];
                         }
@@ -217,7 +229,7 @@ public class AutoplayManager : MonoBehaviour
                             }
                             else
                             {
-                                KPAvatar.sprite = null;
+                                KPAvatar.sprite = KPstandby;
                                 nameDisplay.text = characters[i].name.ToString();
                                 characterSR.sprite = characters[i].poses[0];
                             }
