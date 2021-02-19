@@ -1,29 +1,34 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Audio;
-using TMPro;
-
 
 [CreateAssetMenu(fileName ="New Character", menuName = "ScriptableObjects/Character", order = 1)]
 public class Characters : ScriptableObject
 {
     [Header("Basic Info")]
-    public string characterName = default;
-    public string characterFullName = default;
+    public new string name = default;
+    public string fullName = default;
 
     [Header("Related Images")]
     public Sprite[] poses = default;
     public Sprite dialogBackground = default;
-
-    [Header("Prefabs to be Setup")]
-    public GameObject characterPosObj = default;
-    public GameObject dialogUIPosObj = default;
-    public GameObject nameUIPosObj = default;  
+    // public Sprite nameBackground = default;
 
     [Header("Related Audio")]
     public string audioFolder = default;
     public float mixerPitch = default;
+    // Greenal Mixer Pitch 1.02f
+    // Shitou Mixer Pitch 0.92f
 
+    private AudioClip[] voiceClips = default;
+
+    public void LoadVoiceAudioFiles(int currentSceneNum)
+    {
+        voiceClips = Resources.LoadAll<AudioClip>("Audio/" + currentSceneNum.ToString() +"/" + audioFolder);
+    }
+
+    public AudioClip GetClip(int _currCounter)
+    {
+        return voiceClips[_currCounter];
+    }
 }

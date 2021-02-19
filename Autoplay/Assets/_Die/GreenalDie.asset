@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65daa00eac72d6c42acad4254f4e373b, type: 3}
+  m_Name: GreenalDie
+  m_EditorClassIdentifier: 
+  dieImg: {fileID: 21300000, guid: 5561d77ff2d790342b576421dce82dfc, type: 3}
+  extraSuccess: {fileID: 8300000, guid: e73067155e47c4d36a2927cc2acfc898, type: 3}
+  successSFX: {fileID: 8300000, guid: 00231189b5a514d7aa1315f030a17b22, type: 3}
+  failSFX: {fileID: 8300000, guid: 669376a583786470d994772a576cecb1, type: 3}
+  extraFail: {fileID: 8300000, guid: 01c22bdafcac5411c8a20ccac365a7e9, type: 3}
