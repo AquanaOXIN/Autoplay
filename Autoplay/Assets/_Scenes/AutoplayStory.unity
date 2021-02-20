@@ -523,6 +523,12 @@ MonoBehaviour:
   - {fileID: 4900000, guid: d8e821507327c3545b5e27824d5d74c0, type: 3}
   - {fileID: 4900000, guid: 24db3108f312dd04198e204629719a0d, type: 3}
   currentScene: 1
+  sceneBGPos: {fileID: 0}
+  sr4Pos: []
+  img4Pos: []
+  bgSprites: []
+  sceneSprites: []
+  UISprites: []
   characters:
   - {fileID: 11400000, guid: caebccb41c9832841b1c519b02310f87, type: 2}
   - {fileID: 11400000, guid: 6734ee8470386c14d9c3ae807c1347b9, type: 2}
@@ -1113,7 +1119,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &989254767
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1350,7 +1356,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: bfaa50954245b7d408b577a4fb908bb5, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

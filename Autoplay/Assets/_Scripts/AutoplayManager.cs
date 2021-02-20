@@ -16,6 +16,24 @@ public class AutoplayManager : MonoBehaviour
     [SerializeField]
     private int currentScene = default;
 
+    [Header("SpriteRenderers and Image for Positions")]
+
+    [SerializeField]
+    private SpriteRenderer sceneBGPos = default; // put it separately for intuitive
+
+    [SerializeField]
+    private SpriteRenderer[] sr4Pos = default;
+    [SerializeField]
+    private Image[] img4Pos = default;
+
+    [Header("Other Sprite Images")]
+    [SerializeField]
+    private Sprite[] bgSprites = default;
+    [SerializeField]
+    private Sprite[] sceneSprites = default;
+    [SerializeField]
+    private Sprite[] UISprites = default;
+
     [Header("Characters")]
     [SerializeField]
     private Characters[] characters = default;
@@ -68,9 +86,19 @@ public class AutoplayManager : MonoBehaviour
     [SerializeField, Range(1f, 5f)]
     private float readingSpeed = 1.5f;
 
-    // text line related variables
+    // Text Line related variables
     private string fullLog = default;
     private List<string> rawLines = default;
+    private List<string> lineTagSeq = default;
+
+    // Store Different Types of Lines;
+    // TAGs == "BG"|(SpeakerName)|"SS"|"UIS"|"ROLL"
+    private List<BGLine> bgLines = default;
+    private List<DialogLine> diaLines = default;
+    private List<SSLine> ssLines = default;
+    private List<UISLine> uisLines = default;
+    private List<ROLLine> rolLines = default;
+
     private List<string> orderedLineTags = default;
     private List<string> orderedLines = default;
     [SerializeField]
@@ -94,12 +122,21 @@ public class AutoplayManager : MonoBehaviour
         typingSpeed = 0.01f;
         readingSpeed = 3f;
         rawLines = new List<string>();
+
+        lineTagSeq = new List<string>();
+
+        bgLines = new List<BGLine>();
+        diaLines = new List<DialogLine>();
+        uisLines = new List<UISLine>();
+        ssLines = new List<SSLine>();
+        rolLines = new List<ROLLine>();
+
         orderedLineTags = new List<string>();
         orderedLines = new List<string>();
 
         // Initialize a counter for counting line prog of each character
         lineCounter = new Hashtable();
-        foreach(Characters c in characters)
+        foreach (Characters c in characters)
         {
             c.LoadVoiceAudioFiles(currentScene);
             lineCounter.Add(c.name, (int)0);
@@ -152,14 +189,91 @@ public class AutoplayManager : MonoBehaviour
         string splitPattern0 = @"^\[";
         string splitPattern1 = @"\]\:";
 
+        string splitPattern2 = @"\[";
+        string splitPattern3 = @"\]";
+        string splitPattern4 = @"\|";
+
         for (int i = 0; i < rawLines.Count; i++)
         {
             if (rawLines[i].Length > 0)
             {
-                string[] lineParts0 = Regex.Split(rawLines[i], splitPattern0);
-                string[] lineParts1 = Regex.Split(lineParts0[1], splitPattern1);
-                orderedLineTags.Add(lineParts1[0]);
-                orderedLines.Add(lineParts1[1]);
+                string[] lineParts0 = Regex.Split(rawLines[i], splitPattern0); // delete the 1st "["
+                if(lineParts0[1].Length > 0)
+                {
+                    string[] lineParts1 = Regex.Split(lineParts0[1], splitPattern1); // split by "]:"
+                    // lineParts1[0] == TAG | lineParts[1] == remained stuffs
+                    if(lineParts1[1].Length > 0)
+                    {
+                        string[] lineParts2 = Regex.Split(lineParts1[1], splitPattern2); // split by next "["
+                        // lineParts2[0] == dialog line or null | lineParts2[1] == variables ended w/ a "]"
+                        if (lineParts2.Length == 0)
+                        {
+                            Debug.Log("Format Error at " + i.ToString() + " line.");
+                        }
+                        else
+                        {
+                            string[] lineParts3 = Regex.Split(lineParts2[1], splitPattern3); // delete the last "]"
+                            
+                            if(lineParts3.Length == 0)
+                            {
+                                Debug.Log("Format Error at " + i.ToString() + " line.");
+                            }
+                            else
+                            {
+                                // Separate log defined params
+                                string[] lineParts4 = Regex.Split(lineParts3[0], splitPattern4);
+                                if(lineParts4.Length == 0)
+                                {
+                                    Debug.Log("Format Error at " + i.ToString() + " line.");
+                                }
+                                else // if passed all format check, then start categorize the line by tag
+                                {
+                                    lineTagSeq.Add(lineParts1[0]); // Store the TAG to a list
+
+                                    if ((lineParts1[0] == "BG")) // if it's a BGLine
+                                    {
+                                          
+                                    }
+
+
+
+
+
+
+                                        if ((lineParts1[0] == "BG") ||
+                                    (lineParts1[0] == "SS") ||
+                                    (lineParts1[0] == "UIS") ||
+                                    (lineParts1[0] == "ROLL"))
+                                    {
+                                        lineTagSeq.Add(lineParts1[0]);
+                                    }
+                                    else
+                                    {
+                                        foreach (Characters c in characters)
+                                        {
+                                            if (lineParts1[0] == c.name)
+                                            {
+
+                                            }
+                                        }
+                                    }
+                                    orderedLineTags.Add(lineParts1[0]);
+                                    orderedLines.Add(lineParts1[1]);
+                                }                               
+                            }
+                            
+                        }
+                        
+                    }
+                    else
+                    {
+                        Debug.Log("Format Error at " + i.ToString() + " line.");
+                    }
+                }
+                else
+                {
+                    Debug.Log("Format Error at " + i.ToString() + " line.");
+                }
             }
         }
     }
