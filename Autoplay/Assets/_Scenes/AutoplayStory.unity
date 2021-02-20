@@ -521,9 +521,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   txtFiles:
   - {fileID: 4900000, guid: d8e821507327c3545b5e27824d5d74c0, type: 3}
-  - {fileID: 4900000, guid: 24db3108f312dd04198e204629719a0d, type: 3}
+  - {fileID: 4900000, guid: 70ef5c98573e80c43a9032340bae78ee, type: 3}
   currentScene: 1
-  sceneBGPos: {fileID: 0}
+  sceneBGPos: {fileID: 209734164}
   sr4Pos: []
   img4Pos: []
   bgSprites: []

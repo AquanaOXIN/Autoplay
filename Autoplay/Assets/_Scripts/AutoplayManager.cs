@@ -93,11 +93,13 @@ public class AutoplayManager : MonoBehaviour
 
     // Store Different Types of Lines;
     // TAGs == "BG"|(SpeakerName)|"SS"|"UIS"|"ROLL"
-    private List<BGLine> bgLines = default;
-    private List<DialogLine> diaLines = default;
-    private List<SSLine> ssLines = default;
-    private List<UISLine> uisLines = default;
-    private List<ROLLine> rolLines = default;
+    //private List<BGLine> bgLines = default;
+    //private List<DialogLine> diaLines = default;
+    //private List<SSLine> ssLines = default;
+    //private List<UISLine> uisLines = default;
+    //private List<ROLLine> rolLines = default;
+
+    ArrayList procdLines = default;
 
     private List<string> orderedLineTags = default;
     private List<string> orderedLines = default;
@@ -108,6 +110,8 @@ public class AutoplayManager : MonoBehaviour
     [SerializeField]
     private Characters currCharacter = default;
     private bool lineComplete = false;
+
+    private Hashtable speechSeqCounter = default;
     private Hashtable lineCounter = default;
 
     public bool debugMode = false;
@@ -125,11 +129,13 @@ public class AutoplayManager : MonoBehaviour
 
         lineTagSeq = new List<string>();
 
-        bgLines = new List<BGLine>();
-        diaLines = new List<DialogLine>();
-        uisLines = new List<UISLine>();
-        ssLines = new List<SSLine>();
-        rolLines = new List<ROLLine>();
+        //bgLines = new List<BGLine>();
+        //diaLines = new List<DialogLine>();
+        //uisLines = new List<UISLine>();
+        //ssLines = new List<SSLine>();
+        //rolLines = new List<ROLLine>();
+
+        procdLines = new ArrayList();
 
         orderedLineTags = new List<string>();
         orderedLines = new List<string>();
@@ -140,6 +146,7 @@ public class AutoplayManager : MonoBehaviour
         {
             c.LoadVoiceAudioFiles(currentScene);
             lineCounter.Add(c.name, (int)0);
+            speechSeqCounter.Add(c.name, (int)0);
         }
         progIndex = 0;
         lineComplete = false;
@@ -227,25 +234,24 @@ public class AutoplayManager : MonoBehaviour
                                     Debug.Log("Format Error at " + i.ToString() + " line.");
                                 }
                                 else // if passed all format check, then start categorize the line by tag
-                                {
+                                {    
                                     lineTagSeq.Add(lineParts1[0]); // Store the TAG to a list
-
-                                    if ((lineParts1[0] == "BG")) // if it's a BGLine
+                                    if (lineParts1[0] == "BG") // if it's a BGLine
                                     {
-                                          
+                                        BGLine bgLine = new BGLine(int.Parse(lineParts4[0]), bool.Parse(lineParts4[1]), int.Parse(lineParts4[2]));
+                                        procdLines.Add(bgLine);
                                     }
-
-
-
-
-
-
-                                        if ((lineParts1[0] == "BG") ||
-                                    (lineParts1[0] == "SS") ||
-                                    (lineParts1[0] == "UIS") ||
-                                    (lineParts1[0] == "ROLL"))
+                                    else if (lineParts1[0] == "SS")
                                     {
-                                        lineTagSeq.Add(lineParts1[0]);
+                                        SSLine ssLine = new SSLine(int.Parse(lineParts4[0]), int.Parse(lineParts4[1]), bool.Parse(lineParts4[2]), int.Parse(lineParts4[3]));
+                                    }
+                                    else if (lineParts1[0] == "UIS")
+                                    {
+
+                                    }
+                                    else if (lineParts1[0] == "ROLL")
+                                    {
+
                                     }
                                     else
                                     {
@@ -253,10 +259,17 @@ public class AutoplayManager : MonoBehaviour
                                         {
                                             if (lineParts1[0] == c.name)
                                             {
-
+                                                // Hashtable Stuff here...
                                             }
                                         }
                                     }
+
+
+
+
+
+
+                                    
                                     orderedLineTags.Add(lineParts1[0]);
                                     orderedLines.Add(lineParts1[1]);
                                 }                               
