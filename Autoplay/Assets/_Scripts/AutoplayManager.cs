@@ -19,12 +19,15 @@ public class AutoplayManager : MonoBehaviour
     [Header("SpriteRenderers and Image for Positions")]
 
     [SerializeField]
-    private SpriteRenderer sceneBGPos = default; // put it separately for intuitive
-
+    private SpriteRenderer sceneBGPosition = default; // put it separately for intuitive
     [SerializeField]
-    private SpriteRenderer[] sr4Pos = default;
+    private SpriteRenderer[] sceneCharacterPosition = default;
     [SerializeField]
-    private Image[] img4Pos = default;
+    private SpriteRenderer[] sceneSpritePosition = default;
+    [SerializeField]
+    private Image[] UICharacterPosition = default;
+    [SerializeField]
+    private Image[] UIImgPosition = default;
 
     [Header("Other Sprite Images")]
     [SerializeField]
@@ -91,14 +94,6 @@ public class AutoplayManager : MonoBehaviour
     private List<string> rawLines = default;
     private List<string> lineTagSeq = default;
 
-    // Store Different Types of Lines;
-    // TAGs == "BG"|(SpeakerName)|"SS"|"UIS"|"ROLL"
-    //private List<BGLine> bgLines = default;
-    //private List<DialogLine> diaLines = default;
-    //private List<SSLine> ssLines = default;
-    //private List<UISLine> uisLines = default;
-    //private List<ROLLine> rolLines = default;
-
     ArrayList procdLines = default;
 
     private List<string> orderedLineTags = default;
@@ -129,12 +124,6 @@ public class AutoplayManager : MonoBehaviour
 
         lineTagSeq = new List<string>();
 
-        //bgLines = new List<BGLine>();
-        //diaLines = new List<DialogLine>();
-        //uisLines = new List<UISLine>();
-        //ssLines = new List<SSLine>();
-        //rolLines = new List<ROLLine>();
-
         procdLines = new ArrayList();
 
         orderedLineTags = new List<string>();
@@ -142,6 +131,7 @@ public class AutoplayManager : MonoBehaviour
 
         // Initialize a counter for counting line prog of each character
         lineCounter = new Hashtable();
+        speechSeqCounter = new Hashtable();
         foreach (Characters c in characters)
         {
             c.LoadVoiceAudioFiles(currentScene);
@@ -202,92 +192,120 @@ public class AutoplayManager : MonoBehaviour
 
         for (int i = 0; i < rawLines.Count; i++)
         {
+
+
             if (rawLines[i].Length > 0)
             {
-                string[] lineParts0 = Regex.Split(rawLines[i], splitPattern0); // delete the 1st "["
-                if(lineParts0[1].Length > 0)
-                {
-                    string[] lineParts1 = Regex.Split(lineParts0[1], splitPattern1); // split by "]:"
-                    // lineParts1[0] == TAG | lineParts[1] == remained stuffs
-                    if(lineParts1[1].Length > 0)
-                    {
-                        string[] lineParts2 = Regex.Split(lineParts1[1], splitPattern2); // split by next "["
-                        // lineParts2[0] == dialog line or null | lineParts2[1] == variables ended w/ a "]"
-                        if (lineParts2.Length == 0)
-                        {
-                            Debug.Log("Format Error at " + i.ToString() + " line.");
-                        }
-                        else
-                        {
-                            string[] lineParts3 = Regex.Split(lineParts2[1], splitPattern3); // delete the last "]"
+                string[] lineParts0 = Regex.Split(rawLines[i], splitPattern0);
+                string[] lineParts1 = Regex.Split(lineParts0[1], splitPattern1);
+
+                orderedLineTags.Add(lineParts1[0]);
+                orderedLines.Add(lineParts1[1]);
+            }
+
+
+
+            string[] segdLine0; // null and the rest without the 1st "["
+                                // [0]          [1]
+            string[] segdLine1; // TAG and the rest (variables + dialog(if any), etc)
+                                // [0]          [1]
+            string[] segdLine2; // null and the rest without the initial "["
+                                // [0]          [1]
+            string[] segdLine3; // variables and dialog seg
+                                // [0]          [1]
+            string[] segdLine4; // variables
+
+            // splitPattern0 => delete the 1st "["  
+
+            // splitPattern1 => split by "]:" and [0] is TAG 
+
+            // splitPattern2 => delete the initial "[" again
+
+            // splitPattern3 => split by "]" and [1] is dialog(if any)
+
+            // splitPattern4 => split by "|" and get variables of the line
+
+
+
+            // if (rawLines[i].Length > 0)
+            //{
+            //    string[] lineParts0 = Regex.Split(rawLines[i], splitPattern0); // delete the 1st "["
+            //    if(lineParts0[1].Length > 0)
+            //    {
+            //        string[] lineParts1 = Regex.Split(lineParts0[1], splitPattern1); // split by "]:"
+            //        // lineParts1[0] == TAG | lineParts[1] == remained stuffs
+            //        if(lineParts1[1].Length > 0)
+            //        {
+            //            string[] lineParts2 = Regex.Split(lineParts1[1], splitPattern2); // split by next "["
+            //            // lineParts2[0] == dialog line or null | lineParts2[1] == variables ended w/ a "]"
+            //            if (lineParts2.Length == 0)
+            //            {
+            //                Debug.Log("Format Error at " + i.ToString() + " line.");
+            //            }
+            //            else
+            //            {
+            //                string[] lineParts3 = Regex.Split(lineParts2[1], splitPattern3); // delete the last "]"
                             
-                            if(lineParts3.Length == 0)
-                            {
-                                Debug.Log("Format Error at " + i.ToString() + " line.");
-                            }
-                            else
-                            {
-                                // Separate log defined params
-                                string[] lineParts4 = Regex.Split(lineParts3[0], splitPattern4);
-                                if(lineParts4.Length == 0)
-                                {
-                                    Debug.Log("Format Error at " + i.ToString() + " line.");
-                                }
-                                else // if passed all format check, then start categorize the line by tag
-                                {    
-                                    lineTagSeq.Add(lineParts1[0]); // Store the TAG to a list
-                                    if (lineParts1[0] == "BG") // if it's a BGLine
-                                    {
-                                        BGLine bgLine = new BGLine(int.Parse(lineParts4[0]), bool.Parse(lineParts4[1]), int.Parse(lineParts4[2]));
-                                        procdLines.Add(bgLine);
-                                    }
-                                    else if (lineParts1[0] == "SS")
-                                    {
-                                        SSLine ssLine = new SSLine(int.Parse(lineParts4[0]), int.Parse(lineParts4[1]), bool.Parse(lineParts4[2]), int.Parse(lineParts4[3]));
-                                    }
-                                    else if (lineParts1[0] == "UIS")
-                                    {
+            //                if(lineParts3.Length == 0)
+            //                {
+            //                    Debug.Log("Format Error at " + i.ToString() + " line.");
+            //                }
+            //                else
+            //                {
+            //                    // Separate log defined params
+            //                    string[] lineParts4 = Regex.Split(lineParts3[0], splitPattern4);
+            //                    if(lineParts4.Length == 0)
+            //                    {
+            //                        Debug.Log("Format Error at " + i.ToString() + " line.");
+            //                    }
+            //                    else // if passed all format check, then start categorize the line by tag
+            //                    {    
+            //                        lineTagSeq.Add(lineParts1[0]); // Store the TAG to a list
+            //                        if (lineParts1[0] == "BG") // if it's a BGLine
+            //                        {
+            //                            BGLine bgLine = new BGLine(int.Parse(lineParts4[0]), bool.Parse(lineParts4[1]), int.Parse(lineParts4[2]));
+            //                            procdLines.Add(bgLine);
+            //                        }
+            //                        else if (lineParts1[0] == "SS")
+            //                        {
+            //                            SSLine ssLine = new SSLine(int.Parse(lineParts4[0]), int.Parse(lineParts4[1]), bool.Parse(lineParts4[2]), int.Parse(lineParts4[3]));
+            //                        }
+            //                        else if (lineParts1[0] == "UIS")
+            //                        {
 
-                                    }
-                                    else if (lineParts1[0] == "ROLL")
-                                    {
+            //                        }
+            //                        else if (lineParts1[0] == "ROLL")
+            //                        {
 
-                                    }
-                                    else
-                                    {
-                                        foreach (Characters c in characters)
-                                        {
-                                            if (lineParts1[0] == c.name)
-                                            {
-                                                // Hashtable Stuff here...
-                                            }
-                                        }
-                                    }
-
-
-
-
-
+            //                        }
+            //                        else
+            //                        {
+            //                            foreach (Characters c in characters)
+            //                            {
+            //                                if (lineParts1[0] == c.name)
+            //                                {
+            //                                    // Hashtable Stuff here...
+            //                                }
+            //                            }
+            //                        }
 
                                     
-                                    orderedLineTags.Add(lineParts1[0]);
-                                    orderedLines.Add(lineParts1[1]);
-                                }                               
-                            }
+            //                    }                               
+            //                }
                             
-                        }
+            //            }
                         
-                    }
-                    else
-                    {
-                        Debug.Log("Format Error at " + i.ToString() + " line.");
-                    }
-                }
-                else
-                {
-                    Debug.Log("Format Error at " + i.ToString() + " line.");
-                }
-            }
+            //        }
+            //        else
+            //        {
+            //            Debug.Log("Format Error at " + i.ToString() + " line.");
+            //        }
+            //    }
+            //    else
+            //    {
+            //        Debug.Log("Format Error at " + i.ToString() + " line.");
+            //    }
+            //}
         }
     }
 
