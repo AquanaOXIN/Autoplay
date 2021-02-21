@@ -6,12 +6,13 @@ using UnityEngine;
 public class Characters : ScriptableObject
 {
     [Header("Basic Info")]
-    public new string name = default;
+    public string tagName = default;
+    public string displayName = default;
     public string fullName = default;
 
     [Header("Related Images")]
-    public Sprite[] poses = default;
-    public Sprite dialogBackground = default;
+    public Sprite[] emotionSprites = default;
+    public Sprite dialogBGSprite = default;
     // public Sprite nameBackground = default;
 
     [Header("Related Audio")]
@@ -21,6 +22,7 @@ public class Characters : ScriptableObject
     // Shitou Mixer Pitch 0.92f
 
     private AudioClip[] voiceClips = default;
+    private int currentPosition = 999;
 
     public void LoadVoiceAudioFiles(int currentSceneNum)
     {
@@ -30,5 +32,15 @@ public class Characters : ScriptableObject
     public AudioClip GetClip(int _currCounter)
     {
         return voiceClips[_currCounter];
+    }
+
+    public void SetCurrentPosition(int _pos)
+    {
+        currentPosition = _pos;
+    }
+
+    public int GetCurrentPosition()
+    {
+        return currentPosition;
     }
 }

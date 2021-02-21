@@ -3,16 +3,18 @@
 
 public struct SSLine
 {
-    public int spriteIndex;
-    public int posIndex;
-    public bool isIn;
-    public int vfxSelect;
+    public string tagName;
+    public int? spriteSelect;
+    public int? posSelect;
+    public int? status;
+    public int? vfxSelect;
 
-    public SSLine(int _spriteIndex, int _posIndex, bool _isIn, int _vfxSelect)
+    public SSLine(string _tagName, int? _spriteSelect, int? _posSelect, int? _status, int? _vfxSelect)
     {
-        this.spriteIndex = _spriteIndex;
-        this.posIndex = _posIndex;
-        this.isIn = _isIn;
+        this.tagName = _tagName;
+        this.spriteSelect = _spriteSelect;
+        this.posSelect = _posSelect;
+        this.status = _status;
         this.vfxSelect = _vfxSelect;
     }
 }

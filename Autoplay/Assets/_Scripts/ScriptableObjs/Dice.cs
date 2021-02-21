@@ -12,11 +12,8 @@ public class Dice : ScriptableObject
     // public string dieName = default;
 
     [Header("Related Images")]
-    public Sprite dieImg = default;
+    public Sprite dieSprite = default;
 
     [Header("Sound Effects")]
-    public AudioClip extraSuccess = default;
-    public AudioClip successSFX = default;
-    public AudioClip failSFX = default;
-    public AudioClip extraFail = default;
+    public AudioClip[] rollDiceSFX = default;
 }

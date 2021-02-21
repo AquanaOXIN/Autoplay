@@ -12,14 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 072f34bf126ec7b4d8bdc3b12c8f7720, type: 3}
   m_Name: Paz
   m_EditorClassIdentifier: 
-  name: Paz
+  tagName: Paz
+  displayName: Paz
   fullName: Paz J. Kim
-  poses:
+  emotionSprites:
   - {fileID: 21300000, guid: d443e4b88084b3d4ba66757866675e0d, type: 3}
   - {fileID: 21300000, guid: 852f4424339d53a4d903a7bcc376fb4e, type: 3}
   - {fileID: 21300000, guid: fcf9f68f881caca4d81f03094317a710, type: 3}
   - {fileID: 21300000, guid: 5b8f45e0db4a49f4a94f09262baa71aa, type: 3}
   - {fileID: 21300000, guid: 8dc6e5b578de3f6478b4af39f966e9e9, type: 3}
-  dialogBackground: {fileID: 21300000, guid: 690e2c8fcff5fdd479e4d8409a1f2b71, type: 3}
+  dialogBGSprite: {fileID: 21300000, guid: 690e2c8fcff5fdd479e4d8409a1f2b71, type: 3}
   audioFolder: Paz
   mixerPitch: 0.97

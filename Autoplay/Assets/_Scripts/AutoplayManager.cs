@@ -12,32 +12,23 @@ public class AutoplayManager : MonoBehaviour
 {
     [Header("Scene Log Setup")]
     [SerializeField]
-    private TextAsset[] txtFiles = default;
+    private TextAsset[] logFiles = default;
     [SerializeField]
-    private int currentScene = default;
-
-    [Header("SpriteRenderers and Image for Positions")]
-
+    private string BGTAG = default; // tag in log for background
     [SerializeField]
-    private SpriteRenderer sceneBGPosition = default; // put it separately for intuitive
+    private string SSTAG = default; // tag in log for scene sprite
     [SerializeField]
-    private SpriteRenderer[] sceneCharacterPosition = default;
+    private string UISTAG = default; // tag in log for UI sprite
     [SerializeField]
-    private SpriteRenderer[] sceneSpritePosition = default;
+    private string ROLLTAG = default; // tag in log for rolling dice
     [SerializeField]
-    private Image[] UICharacterPosition = default;
+    private string KPTAG = default;
     [SerializeField]
-    private Image[] UIImgPosition = default;
-
-    [Header("Other Sprite Images")]
-    [SerializeField]
-    private Sprite[] bgSprites = default;
-    [SerializeField]
-    private Sprite[] sceneSprites = default;
-    [SerializeField]
-    private Sprite[] UISprites = default;
+    private int currentSceneNum = default;
 
     [Header("Characters")]
+    [SerializeField]
+    private bool KP_as_PC = false; // KP on UI as default, check this if you want KP also as a scene Sprite
     [SerializeField]
     private Characters[] characters = default;
 
@@ -45,9 +36,47 @@ public class AutoplayManager : MonoBehaviour
     [SerializeField]
     private Dice[] dice = default;
 
-    [Header("Items")]
+    [Header("Basic UI Elements")]
     [SerializeField]
-    private PopItem[] items = default;
+    private GameObject UIForeground = default;
+    [SerializeField]
+    private GameObject UIDialogue = default;
+    [SerializeField]
+    private GameObject UIName = default;
+
+    private Image dialogImg = default;
+    private Image nameImg = default;
+    private TextMeshProUGUI dialogDisplay = default;
+    private TextMeshProUGUI nameDisplay = default;
+
+    [Header("Assign Positions")]
+    [SerializeField]
+    private GameObject sceneBackground = default;
+    [SerializeField]
+    private GameObject[] sceneCharacters = default;
+    [SerializeField]
+    private GameObject[] sceneItems = default;
+    [SerializeField]
+    private GameObject[] UICharacters = default;
+    [SerializeField]
+    private GameObject UIDice = default;
+    [SerializeField]
+    private GameObject UIItem = default;
+
+    private SpriteRenderer sceneBGSR = default;
+    private List<SpriteRenderer> sceneCharacterSRs = default;
+    private List<SpriteRenderer> sceneItemsSRs = default;
+    private List<Image> UICharacterImgs = default;
+    private Image UIDiceImg = default;
+    private Image UIItemImg = default;
+
+    [Header("Other Sprite Images")]
+    [SerializeField]
+    private Sprite[] BackgroundSprites = default;
+    [SerializeField]
+    private Sprite[] sceneSprites = default;
+    [SerializeField]
+    private Sprite[] UISprites = default;
 
     [Header("Audio Elements")]
     [SerializeField]
@@ -59,29 +88,8 @@ public class AutoplayManager : MonoBehaviour
     [SerializeField]
     private AudioSource BGMAudio = default;
 
-    [Header("UI Elements")]
-    [SerializeField]
-    private GameObject foregroundUI = default;
-    [SerializeField]
-    private Image dialogBackground = default;
-    [SerializeField]
-    private GameObject dialogUI = default;
-    [SerializeField]
-    private TextMeshProUGUI dialogDisplay = default;
-    [SerializeField]
-    private TextMeshProUGUI nameDisplay = default;
-    [SerializeField]
-    private Image KPAvatar = default;
-    [SerializeField]
-    private GameObject ItemUI = default;
-    [SerializeField]
-    private Image ItemDisplay = default;
-
-    [Header("Level Elements")]
-    [SerializeField]
-    private SpriteRenderer characterSR;
-
     [Header("Variables")]
+    private bool sceneSetted = false;
     [SerializeField]
     private float loadingTime = default;
     [SerializeField, Range(0f, 0.1f)]
@@ -92,65 +100,84 @@ public class AutoplayManager : MonoBehaviour
     // Text Line related variables
     private string fullLog = default;
     private List<string> rawLines = default;
-    private List<string> lineTagSeq = default;
-
-    ArrayList procdLines = default;
-
-    private List<string> orderedLineTags = default;
-    private List<string> orderedLines = default;
     [SerializeField]
     private int progIndex = 0;
     [SerializeField]
     private string currTag = default;
     [SerializeField]
-    private Characters currCharacter = default;
+    private string currDialog = default;
+    private List<string> lineTagSeq = default;
+    private List<string> lineDialogSeq = default;
+    private ArrayList procdLines = default;
+
+    // KP Specials
+    private Characters theKP = default;
+
     private bool lineComplete = false;
 
     private Hashtable speechSeqCounter = default;
-    private Hashtable lineCounter = default;
-
-    public bool debugMode = false;
-    public Sprite KPstandby = default;
 
     private void Start()
     {
-        foregroundUI.SetActive(true);
-        ItemUI.SetActive(false);
+        UIForeground.SetActive(true);
 
-        loadingTime = 2f;
-        typingSpeed = 0.01f;
-        readingSpeed = 3f;
+        dialogImg = UIDialogue.GetComponentInChildren<Image>();
+        nameImg = UIName.GetComponentInChildren<Image>();
+        dialogDisplay = UIDialogue.GetComponentInChildren<TextMeshProUGUI>();
+        nameDisplay = UIName.GetComponentInChildren<TextMeshProUGUI>();
+
+        sceneBGSR = sceneBackground.GetComponentInChildren<SpriteRenderer>();
+
+        sceneCharacterSRs = new List<SpriteRenderer>();
+        foreach (GameObject go in sceneCharacters)
+        {
+            SpriteRenderer sr = go.GetComponentInChildren<SpriteRenderer>();
+            sceneCharacterSRs.Add(sr);
+        }
+
+        sceneItemsSRs = new List<SpriteRenderer>();
+        foreach (GameObject go in sceneItems)
+        {
+            SpriteRenderer sr = go.GetComponentInChildren<SpriteRenderer>();
+            sceneItemsSRs.Add(sr);
+        }
+
+        UICharacterImgs = new List<Image>();
+        foreach (GameObject go in UICharacters)
+        {
+            Image sr = go.GetComponentInChildren<Image>();
+            UICharacterImgs.Add(sr);
+        }
+
+        UIDiceImg = UIDice.GetComponentInChildren<Image>();
+        UIItemImg = UIItem.GetComponentInChildren<Image>();
+
         rawLines = new List<string>();
-
         lineTagSeq = new List<string>();
-
+        lineDialogSeq = new List<string>();
         procdLines = new ArrayList();
 
-        orderedLineTags = new List<string>();
-        orderedLines = new List<string>();
-
         // Initialize a counter for counting line prog of each character
-        lineCounter = new Hashtable();
         speechSeqCounter = new Hashtable();
         foreach (Characters c in characters)
         {
-            c.LoadVoiceAudioFiles(currentScene);
-            lineCounter.Add(c.name, (int)0);
-            speechSeqCounter.Add(c.name, (int)0);
+            c.LoadVoiceAudioFiles(currentSceneNum);
+            speechSeqCounter.Add(c.tagName, (int)0);
         }
-        progIndex = 0;
+
+        sceneSetted = false;
         lineComplete = false;
 
-        dialogUI.SetActive(false);
+        UIDialogue.SetActive(false);
 
         StartCoroutine(LoadingScene());
     }
 
     private void Update()
     {
-        if (dialogUI.activeInHierarchy)
+        if(UIDialogue.activeInHierarchy)
         {
-            if (dialogDisplay.text == orderedLines[progIndex])
+            if (dialogDisplay.text == lineDialogSeq[progIndex])
             {
                 lineComplete = true;
             }
@@ -164,17 +191,33 @@ public class AutoplayManager : MonoBehaviour
     private IEnumerator LoadingScene()
     {
 
-        StartCoroutine(BlackIn(foregroundUI, loadingTime));
+        StartCoroutine(BlackIn(UIForeground, loadingTime));
         yield return new WaitForSeconds(1f);
-        ImportDialog(currentScene);
+        ImportDialog(currentSceneNum);
     }
 
     private void ImportDialog(int _currentSceneNum)
     {
-        if (txtFiles.Length > 0)
+        if (logFiles.Length > 0)
         {
-            InitiateDialog(txtFiles[_currentSceneNum]);
+            InitiateDialog(logFiles[_currentSceneNum]);
         }
+        else
+        {
+            Debug.Log("Log File Format Error.");
+        }
+    }
+
+    private void InitiateDialog(TextAsset txt)
+    {
+        ProcessLog(txt);
+
+        UIDialogue.SetActive(true);
+        dialogDisplay.text = "";
+        nameDisplay.text = "";
+
+        ExecutingLine();
+        // StartCoroutine(ExecutingLine());
     }
 
     private void ProcessLog(TextAsset txt)
@@ -183,207 +226,454 @@ public class AutoplayManager : MonoBehaviour
         rawLines.AddRange(fullLog.Split("\n"[0]));
 
         // Process raw lines
+        string rawLineFormat = @"^\[\S+\]\:\[\S+\].*";
+        string bgLineFormat = @".*\|.*\|.*";
+        string ssLineFormat = @".*\|.*\|.*\|.*";
+        string uisLineFormat = @".*\|.*\|.*\|.*";
+        string rolLineFormat = @".*\|.*\|.*\|.*";
+        string dialogLineFormat = @".*\|.*\|.*\|.*";
+
         string splitPattern0 = @"^\[";
         string splitPattern1 = @"\]\:";
 
         string splitPattern2 = @"\[";
-        string splitPattern3 = @"\]";
+        string splitPattern3 = @"\]\s*";
         string splitPattern4 = @"\|";
 
         for (int i = 0; i < rawLines.Count; i++)
         {
+            Match m = Regex.Match(rawLines[i], rawLineFormat);
 
-
-            if (rawLines[i].Length > 0)
+            if (m.Length > 0) // if overall format correct, then start processing
             {
-                string[] lineParts0 = Regex.Split(rawLines[i], splitPattern0);
-                string[] lineParts1 = Regex.Split(lineParts0[1], splitPattern1);
+                string tmpTag;
+                string tmpDialog;
 
-                orderedLineTags.Add(lineParts1[0]);
-                orderedLines.Add(lineParts1[1]);
-            }
+                // ↓ splitPattern0 => delete the 1st "["  
+                string[] segdLine0 = Regex.Split(rawLines[i], splitPattern0);
+                // ↑ null and the rest without the 1st "["
+                // ↑ [0]          [1]
 
+                // ↓ splitPattern1 => split by "]:" and [0] is TAG 
+                string[] segdLine1 = Regex.Split(segdLine0[1], splitPattern1);
+                tmpTag = segdLine1[0];
+                // ↑ TAG and the rest (variables + dialog(if any), etc)
+                // ↑ [0]          [1]
 
+                // ↓ splitPattern2 => delete the initial "[" again
+                string[] segdLine2 = Regex.Split(segdLine1[1], splitPattern2);
+                // ↑ null and the rest without the initial "["
+                // ↑ [0]          [1]
 
-            string[] segdLine0; // null and the rest without the 1st "["
-                                // [0]          [1]
-            string[] segdLine1; // TAG and the rest (variables + dialog(if any), etc)
-                                // [0]          [1]
-            string[] segdLine2; // null and the rest without the initial "["
-                                // [0]          [1]
-            string[] segdLine3; // variables and dialog seg
-                                // [0]          [1]
-            string[] segdLine4; // variables
+                // ↓ splitPattern3 => split by "]" and [1] is dialog(if any)
+                string[] segdLine3 = Regex.Split(segdLine2[1], splitPattern3);
+                tmpDialog = segdLine3[1];
+                // ↑ variables and dialog seg
+                // ↑ [0]          [1]
 
-            // splitPattern0 => delete the 1st "["  
-
-            // splitPattern1 => split by "]:" and [0] is TAG 
-
-            // splitPattern2 => delete the initial "[" again
-
-            // splitPattern3 => split by "]" and [1] is dialog(if any)
-
-            // splitPattern4 => split by "|" and get variables of the line
-
-
-
-            // if (rawLines[i].Length > 0)
-            //{
-            //    string[] lineParts0 = Regex.Split(rawLines[i], splitPattern0); // delete the 1st "["
-            //    if(lineParts0[1].Length > 0)
-            //    {
-            //        string[] lineParts1 = Regex.Split(lineParts0[1], splitPattern1); // split by "]:"
-            //        // lineParts1[0] == TAG | lineParts[1] == remained stuffs
-            //        if(lineParts1[1].Length > 0)
-            //        {
-            //            string[] lineParts2 = Regex.Split(lineParts1[1], splitPattern2); // split by next "["
-            //            // lineParts2[0] == dialog line or null | lineParts2[1] == variables ended w/ a "]"
-            //            if (lineParts2.Length == 0)
-            //            {
-            //                Debug.Log("Format Error at " + i.ToString() + " line.");
-            //            }
-            //            else
-            //            {
-            //                string[] lineParts3 = Regex.Split(lineParts2[1], splitPattern3); // delete the last "]"
-                            
-            //                if(lineParts3.Length == 0)
-            //                {
-            //                    Debug.Log("Format Error at " + i.ToString() + " line.");
-            //                }
-            //                else
-            //                {
-            //                    // Separate log defined params
-            //                    string[] lineParts4 = Regex.Split(lineParts3[0], splitPattern4);
-            //                    if(lineParts4.Length == 0)
-            //                    {
-            //                        Debug.Log("Format Error at " + i.ToString() + " line.");
-            //                    }
-            //                    else // if passed all format check, then start categorize the line by tag
-            //                    {    
-            //                        lineTagSeq.Add(lineParts1[0]); // Store the TAG to a list
-            //                        if (lineParts1[0] == "BG") // if it's a BGLine
-            //                        {
-            //                            BGLine bgLine = new BGLine(int.Parse(lineParts4[0]), bool.Parse(lineParts4[1]), int.Parse(lineParts4[2]));
-            //                            procdLines.Add(bgLine);
-            //                        }
-            //                        else if (lineParts1[0] == "SS")
-            //                        {
-            //                            SSLine ssLine = new SSLine(int.Parse(lineParts4[0]), int.Parse(lineParts4[1]), bool.Parse(lineParts4[2]), int.Parse(lineParts4[3]));
-            //                        }
-            //                        else if (lineParts1[0] == "UIS")
-            //                        {
-
-            //                        }
-            //                        else if (lineParts1[0] == "ROLL")
-            //                        {
-
-            //                        }
-            //                        else
-            //                        {
-            //                            foreach (Characters c in characters)
-            //                            {
-            //                                if (lineParts1[0] == c.name)
-            //                                {
-            //                                    // Hashtable Stuff here...
-            //                                }
-            //                            }
-            //                        }
-
-                                    
-            //                    }                               
-            //                }
-                            
-            //            }
-                        
-            //        }
-            //        else
-            //        {
-            //            Debug.Log("Format Error at " + i.ToString() + " line.");
-            //        }
-            //    }
-            //    else
-            //    {
-            //        Debug.Log("Format Error at " + i.ToString() + " line.");
-            //    }
-            //}
-        }
-    }
-
-    private void InitiateDialog(TextAsset txt)
-    {
-        ProcessLog(txt);
-        dialogUI.SetActive(true);
-        dialogDisplay.text = "";
-        StartCoroutine(TypingSentence());
-    }
-
-    private IEnumerator TypingSentence()
-    {
-        nameDisplay.text = "";
-        // Current "[???]:" => currTag 
-        currTag = orderedLineTags[progIndex];
-
-        if (currTag == "ROLL")
-        {
-            KPAvatar.sprite = dice[0].dieImg;
-            SFXAudio.clip = dice[0].successSFX;
-            SFXAudio.PlayDelayed(0.5f);
-            readingSpeed = 3.0f;
-        }
-        else if (currTag == "BG")
-        {
-
-        }
-        else if (currTag == "Item")
-        {
-            ItemUI.SetActive(true);
-            ItemDisplay.sprite = items[0].itemImg;
-            ItemDisplay.SetNativeSize();
-            DelayedSetActive(ItemUI, false, 3.0f);
-        }
-        else
-        {
-            for (int i = 0; i < characters.Length; i++)
-            {
-                if (currTag == characters[i].name)
+                // ↓ splitPattern4 => split by "|" and get variables of the line
+                // But Format Check accordingly first
+                
+                if(tmpTag == BGTAG)
                 {
-                    // Visuals
-                    if (progIndex == 0)
+                    Match _m = Regex.Match(segdLine3[0], bgLineFormat);
+                    if(_m.Length > 0)
                     {
-                        currCharacter = characters[i];
-                        if(currTag == "KP")
+                        string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
+
+                        int?[] intParams = new int?[3];
+                        int counter = 0;
+                        while(counter < 3)
                         {
-                            KPAvatar.sprite = characters[i].poses[0];
+                            intParams[counter] = ToNullableInt(in_params[counter]);
+                            counter++;
                         }
-                        else
-                        {
-                            KPAvatar.sprite = KPstandby;
-                            nameDisplay.text = characters[i].name.ToString();
-                            characterSR.sprite = characters[i].poses[0];
-                        }
-                        dialogBackground.sprite = characters[i].dialogBackground;
+                        BGLine _line = new BGLine(BGTAG, intParams[0], intParams[1], intParams[2]);
+                        lineTagSeq.Add(tmpTag);
+                        lineDialogSeq.Add("");
+                        procdLines.Add(_line);
                     }
-                    else if (progIndex != 0)
+                    else
                     {
-                        if (currTag != currCharacter.name) // Later should be added another condition: nowPose != currPose etc
-                        {                        
-                            currCharacter = characters[i];
-                            if (currTag == "KP")
+                        Debug.Log("Format Error @ line " + i.ToString());
+                        break;
+                    }
+                }
+                else if (tmpTag == SSTAG)
+                {
+                    Match _m = Regex.Match(segdLine3[0], ssLineFormat);
+                    if (_m.Length > 0)
+                    {
+                        string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
+                        //
+                        int?[] intParams = new int?[4];
+                        int counter = 0;
+                        while (counter < 4)
+                        {
+                            intParams[counter] = ToNullableInt(in_params[counter]);
+                            counter++;
+                        }
+                        SSLine _line = new SSLine(SSTAG, intParams[0], intParams[1], intParams[2], intParams[3]);
+                        lineTagSeq.Add(tmpTag);
+                        lineDialogSeq.Add("");
+                        procdLines.Add(_line);
+                    }
+                    else
+                    {
+                        Debug.Log("Format Error @ line " + i.ToString());
+                        break;
+                    }
+                }
+                else if (tmpTag == UISTAG)
+                {
+                    Match _m = Regex.Match(segdLine3[0], uisLineFormat);
+                    if (_m.Length > 0)
+                    {
+                        string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
+                        //
+                        int?[] intParams = new int?[4];
+                        int counter = 0;
+                        while (counter < 4)
+                        {
+                            intParams[counter] = ToNullableInt(in_params[counter]);
+                            counter++;
+                        }
+                        UISLine _line = new UISLine(UISTAG, intParams[0], intParams[1], intParams[2], intParams[3]);
+                        lineTagSeq.Add(tmpTag);
+                        lineDialogSeq.Add("");
+                        procdLines.Add(_line);
+                    }
+                    else
+                    {
+                        Debug.Log("Format Error @ line " + i.ToString());
+                        break;
+                    }
+                }
+                else if (tmpTag == ROLLTAG)
+                {
+                    Match _m = Regex.Match(segdLine3[0], rolLineFormat);
+                    if (_m.Length > 0)
+                    {
+                        string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
+                        //
+                        int?[] intParams = new int?[4];
+                        int counter = 0;
+                        while (counter < 4)
+                        {
+                            intParams[counter] = ToNullableInt(in_params[counter]);
+                            counter++;
+                        }
+                        ROLLine _line = new ROLLine(ROLLTAG, intParams[0], intParams[1], intParams[2], intParams[3], tmpDialog);
+                        lineTagSeq.Add(tmpTag);
+                        lineDialogSeq.Add(tmpDialog);
+                        procdLines.Add(_line);
+                    }
+                    else
+                    {
+                        Debug.Log("Format Error @ line " + i.ToString());
+                        break;
+                    }
+                }
+                else
+                {
+                    foreach (Characters c in characters)
+                    {
+                        if(tmpTag == c.tagName)
+                        {
+                            int seqCounter = (int)speechSeqCounter[c.tagName];
+                            
+                            Match _m = Regex.Match(segdLine3[0], dialogLineFormat);
+                            if (_m.Length > 0)
                             {
-                                KPAvatar.sprite = characters[i].poses[0];
+                                string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
+
+                                //
+                                int?[] intParams = new int?[4];
+                                int counter = 0;
+                                while (counter < 4)
+                                {
+                                    intParams[counter] = ToNullableInt(in_params[counter]);
+                                    counter++;
+                                }
+
+                                DialogLine _line = new DialogLine(c.tagName, intParams[0], intParams[1], intParams[2], intParams[3], seqCounter, tmpDialog);
+                                lineTagSeq.Add(tmpTag);
+                                lineDialogSeq.Add(tmpDialog);
+                                procdLines.Add(_line);
+                                seqCounter++;
+                                speechSeqCounter[c.tagName] = seqCounter;
                             }
                             else
                             {
-                                KPAvatar.sprite = KPstandby;
-                                nameDisplay.text = characters[i].name.ToString();
-                                characterSR.sprite = characters[i].poses[0];
+                                Debug.Log("Format Error @ line " + i.ToString());
+                                break;
                             }
-                            dialogBackground.sprite = characters[i].dialogBackground;
                         }
                     }
-                    // Voice
-                    int currCounter = (int)lineCounter[characters[i].name];
-                    voiceAudio.clip = characters[i].GetClip(currCounter);
+                }
+            }
+            else
+            {
+                Debug.Log("Format Error @ line " + i.ToString());
+                break;
+            }
+        }
+    }
+
+
+    private void ExecutingLine()
+    {
+        currTag = lineTagSeq[progIndex];
+        currDialog = lineDialogSeq[progIndex];
+        // sceneSetted?
+
+        if (currTag == BGTAG)
+        {
+            readingSpeed = 1f;
+
+            BGLine currLine = (BGLine)procdLines[progIndex];
+            
+            if (currLine.spriteSelect != null)
+            {
+                // can be changed in other ways
+                sceneBGSR.sprite = BackgroundSprites[(int)currLine.spriteSelect];
+            }
+            else
+            {
+                // show default background
+                sceneBGSR.sprite = BackgroundSprites[0];
+            }
+
+            if(currLine.status != null)
+            {
+                // Moving-in or Moving-out? Moving should change the sceneBackground Gameobject
+            }
+
+            if(currLine.vfxSelect != null)
+            {
+                // ... with which kind of VFX?
+            }
+            
+        }
+        else if (currTag == SSTAG)
+        {
+            readingSpeed = 1f;
+
+            Sprite sprite2Show = default;
+            SSLine currLine = (SSLine)procdLines[progIndex];
+            if(currLine.spriteSelect != null)
+            {
+                sprite2Show = sceneSprites[(int)currLine.spriteSelect];
+            }
+
+            if(currLine.posSelect != null)
+            {
+                sceneItemsSRs[(int)currLine.posSelect].sprite = sprite2Show;
+            }
+
+            if(currLine.status != null)
+            {
+
+            }
+
+            if(currLine.vfxSelect != null)
+            {
+
+            }
+        }
+        else if (currTag == UISTAG)
+        {
+            readingSpeed = 1f;
+
+            Sprite sprite2Show = default;
+            UISLine currLine = (UISLine)procdLines[progIndex];
+            if (currLine.spriteSelect != null)
+            {
+                sprite2Show = UISprites[(int)currLine.spriteSelect];
+            }
+
+            if (currLine.posSelect != null)
+            {
+                UIItemImg.sprite = sprite2Show;
+                UIItemImg.SetNativeSize();
+            }
+            else
+            {
+                // default Image UI
+                UIItemImg.sprite = sprite2Show;
+                UIItemImg.SetNativeSize();
+            }
+
+            if (currLine.status != null)
+            {
+
+            }
+
+            if (currLine.vfxSelect != null)
+            {
+
+            }
+
+        }
+        else if (currTag == ROLLTAG)
+        {
+            readingSpeed = 3f;
+            Sprite sprite2Show = default;
+            ROLLine currLine = (ROLLine)procdLines[progIndex];
+
+            if (currLine.diceSelect != null)
+            {
+                sprite2Show = dice[(int)currLine.diceSelect].dieSprite;
+            }
+            else
+            {
+                // show default die
+                sprite2Show = dice[0].dieSprite;
+            }
+
+            if (currLine.posSelect != null)
+            {
+                UIDiceImg.sprite = sprite2Show;
+                UIDiceImg.SetNativeSize();
+            }
+            else
+            {
+                UIDiceImg.sprite = sprite2Show;
+                UIDiceImg.SetNativeSize();
+            }
+            
+
+            if (currLine.sfxSelect != null)
+            {
+                SFXAudio.clip = dice[(int)currLine.diceSelect].rollDiceSFX[(int)currLine.sfxSelect];
+                SFXAudio.PlayDelayed(0.5f);
+            }
+            else
+            {
+                SFXAudio.clip = dice[0].rollDiceSFX[0];
+                SFXAudio.PlayDelayed(0.5f);
+            }
+
+            if (currLine.vfxSelect != null)
+            {
+
+            }
+            else
+            {
+
+            }
+
+            StartCoroutine(TypingDialogue(dialogDisplay, currLine.dialogContent, typingSpeed));
+        }
+        else // Character TAG situation ...
+        {
+            foreach(Characters c in characters)
+            {
+                if(currTag == c.tagName)
+                {
+                    dialogImg.sprite = c.dialogBGSprite;
+
+                    DialogLine currLine = (DialogLine)procdLines[progIndex];
+                    if (!KP_as_PC && currTag == KPTAG)
+                    {
+                        // KP line 
+                        // Assign our the most special KP
+                        if(theKP == null)
+                        {
+                            theKP = c;
+                        }
+
+                        if (currLine.status == 1) // character in
+                        {
+                            if (currLine.emoSelect != null && currLine.posSelect != null)
+                            {
+                                UICharacterImgs[(int)currLine.posSelect].sprite = c.emotionSprites[(int)currLine.emoSelect];
+                                c.SetCurrentPosition((int)currLine.posSelect);
+                                UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                            }
+                            else if (currLine.emoSelect != null && currLine.posSelect == null)
+                            {
+                                UICharacterImgs[0].sprite = c.emotionSprites[(int)currLine.emoSelect];
+                                c.SetCurrentPosition(0);
+                                UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                            }
+                            else if (currLine.emoSelect == null && currLine.posSelect != null)
+                            {
+                                UICharacterImgs[(int)currLine.posSelect].sprite = c.emotionSprites[1];
+                                c.SetCurrentPosition((int)currLine.posSelect);
+                                UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                            }
+                            else
+                            {
+                                UICharacterImgs[0].sprite = c.emotionSprites[1];
+                                c.SetCurrentPosition(0);
+                                UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                            }
+                        }
+                        else if (currLine.status == 2) // character leave
+                        {
+                            if (c.GetCurrentPosition() != 999)
+                            {
+                                UICharacterImgs[c.GetCurrentPosition()].sprite = null;
+                            }
+                        }
+                        else
+                        {
+                            // should be changed
+                            UICharacterImgs[0].sprite = c.emotionSprites[1];
+                        }
+                    }
+                    else
+                    {
+                        // Regular PC line
+                        if(theKP.GetCurrentPosition() != 999)
+                        {
+                            UICharacterImgs[theKP.GetCurrentPosition()].sprite = theKP.emotionSprites[0];
+                            UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                        }
+                        //UICharacterImgs[0].sprite = characters[0].emotionSprites[0];
+                        nameDisplay.text = c.displayName.ToString();
+                        if(currLine.status != null || currLine.status != 0)
+                        {
+                            if(currLine.status == 1) // character in
+                            {
+                                if(currLine.emoSelect != null && currLine.posSelect != null)
+                                {
+                                    sceneCharacterSRs[(int)currLine.posSelect].sprite = c.emotionSprites[(int)currLine.emoSelect];
+                                    c.SetCurrentPosition((int)currLine.posSelect);
+                                }
+                                else if(currLine.emoSelect != null && currLine.posSelect == null)
+                                {
+                                    sceneCharacterSRs[0].sprite = c.emotionSprites[(int)currLine.emoSelect];
+                                    c.SetCurrentPosition(0);
+                                }
+                                else if (currLine.emoSelect == null && currLine.posSelect != null)
+                                {
+                                    sceneCharacterSRs[(int)currLine.posSelect].sprite = c.emotionSprites[0];
+                                    c.SetCurrentPosition((int)currLine.posSelect);
+                                }
+                                else
+                                {
+                                    sceneCharacterSRs[0].sprite = c.emotionSprites[0];
+                                    c.SetCurrentPosition(0);
+                                }
+                            }
+                            else if(currLine.status == 2) // character leave
+                            {
+                               if(c.GetCurrentPosition()!= 999)
+                                {
+                                    sceneCharacterSRs[c.GetCurrentPosition()].sprite = null;
+                                }
+                            }
+                            else
+                            {
+                                // should be changed
+                                sceneCharacterSRs[0].sprite = c.emotionSprites[0];
+                            }
+
+                        }
+                    }
+                    voiceAudio.clip = c.GetClip(currLine.speechIndex);
                     if (voiceAudio.clip.length > 0)
                     {
                         readingSpeed = voiceAudio.clip.length;
@@ -392,40 +682,37 @@ public class AutoplayManager : MonoBehaviour
                     {
                         readingSpeed = 2.0f;
                     }
-                    voiceMixer.SetFloat("Pitch", characters[i].mixerPitch);
+                    voiceMixer.SetFloat("Pitch", c.mixerPitch);
                     voiceAudio.PlayDelayed(0.5f);
-                    lineCounter[characters[i].name] = currCounter + 1;
+
+                    StartCoroutine(TypingDialogue(dialogDisplay, currLine.dialogContent, typingSpeed));
                 }
             }
-        }
-        foreach (char letter in orderedLines[progIndex].ToCharArray())
-        {
-            dialogDisplay.text += letter;
-            yield return new WaitForSeconds(typingSpeed);
         }
     }
 
     private IEnumerator NextLine()
     {
         lineComplete = false;
-
-        if (progIndex < orderedLines.Count - 1)
+        if (progIndex < procdLines.Count - 1)
         {
             progIndex++;
             yield return new WaitForSeconds(readingSpeed);
             dialogDisplay.text = "";
-            StartCoroutine(TypingSentence());
+            ExecutingLine();
         }
         else
         {
             yield return new WaitForSeconds(readingSpeed);
-            dialogDisplay.text = "";
+            dialogDisplay.text = "";         
             lineComplete = false;
-            dialogUI.SetActive(false);
+            UIDialogue.SetActive(false);
             progIndex = 0;
             rawLines = new List<string>();
-            orderedLineTags = new List<string>();
-            orderedLines = new List<string>();
+            lineTagSeq = new List<string>();
+            procdLines = new ArrayList();
+            speechSeqCounter = new Hashtable();
+            // Other lists ...
         }
     }
 
@@ -433,6 +720,16 @@ public class AutoplayManager : MonoBehaviour
     {
         yield return new WaitForSeconds(delayTime);
         _go.SetActive(_active);
+    }
+
+    /// TypingSentence
+    private IEnumerator TypingDialogue(TextMeshProUGUI _textDisplay, string _dialog, float _typingSpeed)
+    {
+        foreach (char letter in _dialog)
+        {
+            _textDisplay.text += letter;
+            yield return new WaitForSeconds(_typingSpeed);
+        }
     }
 
     /// Visual Effects
@@ -465,5 +762,20 @@ public class AutoplayManager : MonoBehaviour
             t += Time.deltaTime;
             yield return null;
         }
+    }
+
+    private IEnumerator LineCompleteCounter(float _waitingTime)
+    {
+        yield return new WaitForSeconds(_waitingTime);
+        lineComplete = true;
+    }
+
+    /// Convert Type
+    public int? ToNullableInt(string s)
+    {
+        int i;
+        if (int.TryParse(s, out i))
+            return i;
+        return null;
     }
 }

@@ -2,14 +2,16 @@
 
 public struct BGLine
 {
-    public int spriteIndex;
-    public bool isIn;
-    public int vfxSelect;
+    public string tagName;
+    public int? spriteSelect;
+    public int? status;
+    public int? vfxSelect;
 
-    public BGLine(int _spriteIndex, bool _isIn, int _vfxSelect)
+    public BGLine(string _tagName, int? _spriteSelect, int? _status, int? _vfxSelect)
     {
-        this.spriteIndex = _spriteIndex;
-        this.isIn = _isIn;
+        this.tagName = _tagName;
+        this.spriteSelect = _spriteSelect;
+        this.status = _status;
         this.vfxSelect = _vfxSelect;
     }
 }
