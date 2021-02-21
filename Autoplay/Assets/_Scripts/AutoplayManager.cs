@@ -628,11 +628,15 @@ public class AutoplayManager : MonoBehaviour
                     else
                     {
                         // Regular PC line
-                        if(theKP.GetCurrentPosition() != 999)
+                        if(theKP)
                         {
-                            UICharacterImgs[theKP.GetCurrentPosition()].sprite = theKP.emotionSprites[0];
-                            UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                            if (theKP.GetCurrentPosition() != 999)
+                            {
+                                UICharacterImgs[theKP.GetCurrentPosition()].sprite = theKP.emotionSprites[0];
+                                UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                            }
                         }
+
                         //UICharacterImgs[0].sprite = characters[0].emotionSprites[0];
                         nameDisplay.text = c.displayName.ToString();
                         if(currLine.status != null || currLine.status != 0)
@@ -666,6 +670,10 @@ public class AutoplayManager : MonoBehaviour
                                 {
                                     sceneCharacterSRs[c.GetCurrentPosition()].sprite = null;
                                 }
+                            }
+                            else if(currLine.emoSelect != null)
+                            {
+                                sceneCharacterSRs[0].sprite = c.emotionSprites[(int)currLine.emoSelect];
                             }
                             else
                             {
