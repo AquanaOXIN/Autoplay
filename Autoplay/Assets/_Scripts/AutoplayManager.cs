@@ -621,6 +621,8 @@ public class AutoplayManager : MonoBehaviour
                         {
                             // should be changed
                             UICharacterImgs[0].sprite = c.emotionSprites[1];
+                            c.SetCurrentPosition(0);
+                            UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
                         }
                     }
                     else
