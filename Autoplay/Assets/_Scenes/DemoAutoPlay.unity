@@ -923,7 +923,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &490282281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -939,16 +939,18 @@ MonoBehaviour:
   logFiles:
   - {fileID: 4900000, guid: d8e821507327c3545b5e27824d5d74c0, type: 3}
   - {fileID: 4900000, guid: 24db3108f312dd04198e204629719a0d, type: 3}
+  - {fileID: 4900000, guid: 7cb63101efd747a4799fef1d5eddb43f, type: 3}
   BGTAG: BG
   SSTAG: SS
   UISTAG: UIS
   ROLLTAG: ROLL
   KPTAG: KP
-  currentSceneNum: 1
+  currentSceneNum: 2
   KP_as_PC: 0
   characters:
-  - {fileID: 11400000, guid: caebccb41c9832841b1c519b02310f87, type: 2}
-  - {fileID: 11400000, guid: 6734ee8470386c14d9c3ae807c1347b9, type: 2}
+  - {fileID: 11400000, guid: 017add2c3ef09fb4591a1f28f68ba215, type: 2}
+  - {fileID: 11400000, guid: 7f32cdb11b8dfe74592c5f6041afdb45, type: 2}
+  - {fileID: 11400000, guid: 9675796b82bf1764a97071471a945616, type: 2}
   dice:
   - {fileID: 11400000, guid: 87e9cffa497f67040a431332fb2ef490, type: 2}
   UIForeground: {fileID: 1781540996}
@@ -972,7 +974,7 @@ MonoBehaviour:
   loadingTime: 2
   typingSpeed: 0.01
   readingSpeed: 2.5
-  progIndex: 42
+  progIndex: 0
   currTag: 
   currDialog: 
 --- !u!4 &490282282
@@ -1156,7 +1158,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 579906229}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5, y: -0.25, z: 0}
+  m_LocalPosition: {x: 9.5, y: 5.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1624279162}
@@ -2932,7 +2934,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 4.0078125, y: 7.8828125}
+  m_Size: {x: 1.7734375, y: 1.9101562}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0

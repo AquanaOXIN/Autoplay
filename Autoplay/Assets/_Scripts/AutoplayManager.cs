@@ -703,7 +703,10 @@ public class AutoplayManager : MonoBehaviour
                             else
                             {
                                 // should be changed
-                                sceneCharacterSRs[0].sprite = c.emotionSprites[0];
+                                if(c.emotionSprites.Length > 0)
+                                {
+                                    sceneCharacterSRs[0].sprite = c.emotionSprites[0];
+                                }                              
                             }
 
                         }
