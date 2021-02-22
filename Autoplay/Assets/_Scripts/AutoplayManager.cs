@@ -175,16 +175,22 @@ public class AutoplayManager : MonoBehaviour
 
     private void Update()
     {
-        if(UIDialogue.activeInHierarchy)
+        //if(UIDialogue.activeInHierarchy)
+        //{
+        //    if (dialogDisplay.text == lineDialogSeq[progIndex])
+        //    {
+        //        lineComplete = true;
+        //    }
+        //    if (lineComplete)
+        //    {
+        //        // StartCoroutine(NextLine());
+        //        NextLine();
+        //    }
+        //}
+        if (lineComplete)
         {
-            if (dialogDisplay.text == lineDialogSeq[progIndex])
-            {
-                lineComplete = true;
-            }
-            if (lineComplete)
-            {
-                StartCoroutine(NextLine());
-            }
+            // StartCoroutine(NextLine());
+            NextLine();
         }
     }
 
@@ -216,8 +222,8 @@ public class AutoplayManager : MonoBehaviour
         dialogDisplay.text = "";
         nameDisplay.text = "";
 
-        ExecutingLine();
-        // StartCoroutine(ExecutingLine());
+        // ExecutingLine();
+        StartCoroutine(ExecutingLine());
     }
 
     private void ProcessLog(TextAsset txt)
@@ -421,7 +427,7 @@ public class AutoplayManager : MonoBehaviour
     }
 
 
-    private void ExecutingLine()
+    private IEnumerator ExecutingLine()
     {
         currTag = lineTagSeq[progIndex];
         currDialog = lineDialogSeq[progIndex];
@@ -429,7 +435,7 @@ public class AutoplayManager : MonoBehaviour
 
         if (currTag == BGTAG)
         {
-            readingSpeed = 1f;
+            readingSpeed = 0.5f;
 
             BGLine currLine = (BGLine)procdLines[progIndex];
             
@@ -452,6 +458,14 @@ public class AutoplayManager : MonoBehaviour
             if(currLine.vfxSelect != null)
             {
                 // ... with which kind of VFX?
+                if (currLine.vfxSelect == 0)
+                {
+                    StartCoroutine(BlackIn(UIForeground, 0.3f));
+                }
+                else if (currLine.vfxSelect == 1)
+                {
+                    StartCoroutine(BlackOut(UIForeground, 0.3f));
+                }
             }
             
         }
@@ -710,22 +724,25 @@ public class AutoplayManager : MonoBehaviour
                 }
             }
         }
+
+        yield return new WaitForSeconds(readingSpeed);
+        lineComplete = true;
     }
 
-    private IEnumerator NextLine()
+    private void NextLine()
     {
         lineComplete = false;
         if (progIndex < procdLines.Count - 1)
         {
             progIndex++;
-            yield return new WaitForSeconds(readingSpeed);
+            // yield return new WaitForSeconds(readingSpeed);
             dialogDisplay.text = "";
             nameDisplay.text = "";
-            ExecutingLine();
+            StartCoroutine(ExecutingLine());
         }
         else
         {
-            yield return new WaitForSeconds(readingSpeed);
+            // yield return new WaitForSeconds(readingSpeed);
             dialogDisplay.text = "";
             nameDisplay.text = "";
             lineComplete = false;
@@ -765,6 +782,19 @@ public class AutoplayManager : MonoBehaviour
         while (t < duration)
         {
             go.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(startAlpha, 0f, t / duration));
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+    }
+    private IEnumerator BlackOut(GameObject go, float duration)
+    {
+        float t = 0;
+        float startAlpha = go.GetComponent<CanvasRenderer>().GetAlpha();
+
+        while (t < duration)
+        {
+            go.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(startAlpha, 1f, t / duration));
 
             t += Time.deltaTime;
             yield return null;
