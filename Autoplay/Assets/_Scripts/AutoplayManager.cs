@@ -483,31 +483,42 @@ public class AutoplayManager : MonoBehaviour
         }
         else if (currTag == UISTAG)
         {
-            readingSpeed = 1f;
-
+            readingSpeed = 0.5f;
             Sprite sprite2Show = default;
             UISLine currLine = (UISLine)procdLines[progIndex];
-            if (currLine.spriteSelect != null)
-            {
-                sprite2Show = UISprites[(int)currLine.spriteSelect];
-            }
 
-            if (currLine.posSelect != null)
+            if (currLine.status == 1)
             {
-                UIItemImg.sprite = sprite2Show;
-                UIItemImg.SetNativeSize();
+                if (currLine.spriteSelect != null)
+                {
+                    UIItem.SetActive(true);
+                    sprite2Show = UISprites[(int)currLine.spriteSelect];
+                    UIItemImg.sprite = sprite2Show;
+                    UIItemImg.SetNativeSize();
+                }
+                
+            }
+            else if (currLine.status == 0)
+            {
+                UIItem.SetActive(false);
             }
             else
             {
-                // default Image UI
+                sprite2Show = null;
                 UIItemImg.sprite = sprite2Show;
-                UIItemImg.SetNativeSize();
+                UIItem.SetActive(false);
             }
-
-            if (currLine.status != null)
-            {
-
-            }
+            //if (currLine.posSelect != null)
+            //{
+            //    UIItemImg.sprite = sprite2Show;
+            //    UIItemImg.SetNativeSize();
+            //}
+            //else
+            //{
+            //    // default Image UI
+            //    UIItemImg.sprite = sprite2Show;
+            //    UIItemImg.SetNativeSize();
+            //}
 
             if (currLine.vfxSelect != null)
             {
@@ -709,12 +720,14 @@ public class AutoplayManager : MonoBehaviour
             progIndex++;
             yield return new WaitForSeconds(readingSpeed);
             dialogDisplay.text = "";
+            nameDisplay.text = "";
             ExecutingLine();
         }
         else
         {
             yield return new WaitForSeconds(readingSpeed);
-            dialogDisplay.text = "";         
+            dialogDisplay.text = "";
+            nameDisplay.text = "";
             lineComplete = false;
             UIDialogue.SetActive(false);
             progIndex = 0;

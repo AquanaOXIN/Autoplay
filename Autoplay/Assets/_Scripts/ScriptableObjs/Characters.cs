@@ -15,6 +15,9 @@ public class Characters : ScriptableObject
     public Sprite dialogBGSprite = default;
     // public Sprite nameBackground = default;
 
+    [Header("Animations")]
+    public GameObject animatedCharacter = default;
+
     [Header("Related Audio")]
     public string audioFolder = default;
     public float mixerPitch = default;

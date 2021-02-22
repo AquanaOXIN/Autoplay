@@ -19,5 +19,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 774ecbed18f417a4a842d64c6dca0e2e, type: 3}
   - {fileID: 21300000, guid: a08d1f44bedbb474582837753a15dced, type: 3}
   dialogBGSprite: {fileID: 21300000, guid: 605ef71a2a1e32943aab1b03ffbb49ef, type: 3}
+  animatedCharacter: {fileID: 0}
   audioFolder: KP
   mixerPitch: 1.25
