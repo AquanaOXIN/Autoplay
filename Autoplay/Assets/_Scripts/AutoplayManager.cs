@@ -714,7 +714,7 @@ public class AutoplayManager : MonoBehaviour
                     voiceAudio.clip = c.GetClip(currLine.speechIndex);
                     if (voiceAudio.clip.length > 0)
                     {
-                        readingSpeed = voiceAudio.clip.length;
+                        readingSpeed = voiceAudio.clip.length + 0.6f;
                     }
                     else
                     {
