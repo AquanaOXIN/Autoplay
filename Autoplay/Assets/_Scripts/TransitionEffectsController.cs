@@ -46,6 +46,7 @@ public class TransitionEffectsController : MonoBehaviour
             go.GetComponent<SpriteRenderer>().color = new Color(startColor.r, startColor.g, startColor.b, tmpA);
             t += Time.deltaTime;
             yield return null;
+            go.GetComponent<SpriteRenderer>().color = new Color(startColor.r, startColor.g, startColor.b, 1f);
         }
     }
 
@@ -61,6 +62,7 @@ public class TransitionEffectsController : MonoBehaviour
             go.GetComponent<SpriteRenderer>().color = new Color(startColor.r, startColor.g, startColor.b, tmpA);
             t += Time.deltaTime;
             yield return null;
+            go.GetComponent<SpriteRenderer>().color = new Color(startColor.r, startColor.g, startColor.b, 0f);
         }
     }
 }
