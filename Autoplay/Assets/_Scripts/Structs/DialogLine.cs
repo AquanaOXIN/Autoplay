@@ -13,7 +13,14 @@ public struct DialogLine
                             // ... can(should) be counted as a Hashtable in Autoplay Manager
     public string dialogContent;
 
-    public DialogLine(string _speakerName, int? _emoSelect, int? _posSelect, int? _status, int? _vfxSelect, int _speechIndex, string _dialogContent)
+    // change other/self emotion part
+    public int? charNum;
+    public int? emo2Change;
+    public int? when2Change;
+    public int? where2Change;
+
+    public DialogLine(string _speakerName, int? _emoSelect, int? _posSelect, int? _status, int? _vfxSelect, int _speechIndex,
+        string _dialogContent, int? _charNum = null, int? _emo2Change = 0, int? _when2Change = 0, int? _where2Change = 0)
     {
         this.speakerName = _speakerName;
         this.emoSelect = _emoSelect;
@@ -22,5 +29,10 @@ public struct DialogLine
         this.vfxSelect = _vfxSelect;
         this.speechIndex = _speechIndex;
         this.dialogContent = _dialogContent;
+
+        this.charNum = _charNum;
+        this.emo2Change = _emo2Change;
+        this.when2Change = _when2Change;
+        this.where2Change = _where2Change;
     }
 }

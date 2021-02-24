@@ -6,23 +6,23 @@ using UnityEngine;
 public class Characters : ScriptableObject
 {
     [Header("Basic Info")]
-    public string tagName = default;
+    public string tagName = default; // name used in the log file for [TAG]
     public string displayName = default;
     public string fullName = default;
+    public string[] nameInOtherLanguage = default;
 
     [Header("Related Images")]
-    public Sprite[] emotionSprites = default;
     public Sprite dialogBGSprite = default;
-    // public Sprite nameBackground = default;
+    public Sprite nameBGSprite = default;
+    public Sprite[] emotionSprites = default;
 
     [Header("Animations")]
+    public bool animated = default;
     public GameObject animatedCharacter = default;
 
     [Header("Related Audio")]
     public string audioFolder = default;
     public float mixerPitch = default;
-    // Greenal Mixer Pitch 1.02f
-    // Shitou Mixer Pitch 0.92f
 
     private AudioClip[] voiceClips = default;
     private int currentPosition = 999;

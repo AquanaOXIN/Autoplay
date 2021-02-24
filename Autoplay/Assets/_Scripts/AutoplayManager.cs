@@ -14,17 +14,17 @@ public class AutoplayManager : MonoBehaviour
     [SerializeField]
     private TextAsset[] logFiles = default;
     [SerializeField]
-    private string BGTAG = default; // tag in log for background
-    [SerializeField]
-    private string SSTAG = default; // tag in log for scene sprite
-    [SerializeField]
-    private string UISTAG = default; // tag in log for UI sprite
-    [SerializeField]
-    private string ROLLTAG = default; // tag in log for rolling dice
+    private int currentSceneNum = default;
     [SerializeField]
     private string KPTAG = default;
     [SerializeField]
-    private int currentSceneNum = default;
+    private string ROLLTAG = default; // tag in log for rolling dice
+    [SerializeField]
+    private string BGTAG = default; // tag in log for background
+    [SerializeField]
+    private string ESTAG = default; // tag in log for scene sprite
+    [SerializeField]
+    private string UISTAG = default; // tag in log for UI sprite
 
     [Header("Characters")]
     [SerializeField]
@@ -38,43 +38,46 @@ public class AutoplayManager : MonoBehaviour
 
     [Header("Basic UI Elements")]
     [SerializeField]
-    private GameObject UIForeground = default;
+    private GameObject dialogueUI = default;
     [SerializeField]
-    private GameObject UIDialogue = default;
+    private GameObject[] nameUIs = default;
     [SerializeField]
-    private GameObject UIName = default;
+    private GameObject[] characterUIs = default;
+    [SerializeField]
+    private GameObject diceUI = default;
+    [SerializeField]
+    private GameObject itemUI = default;
+    [SerializeField]
+    private GameObject foregroundUI = default;
 
     private Image dialogImg = default;
-    private Image nameImg = default;
     private TextMeshProUGUI dialogDisplay = default;
-    private TextMeshProUGUI nameDisplay = default;
+    private List<Image> nameImgs = default;
+    private List<TextMeshProUGUI> nameDisplays = default;
+    private Image diceImg = default;
+    private List<Image> characterImgs = default;
+    private Image itemImg = default;
+    private Image foregroundImg = default;
 
-    [Header("Assign Positions")]
+    [Header("Basic Environment Elements")]
+    //[SerializeField]
+    //private GameObject addLights = default;
     [SerializeField]
-    private GameObject sceneBackground = default;
+    private GameObject envBackground = default;
     [SerializeField]
-    private GameObject[] sceneCharacters = default;
+    private GameObject[] envCharacters = default;
     [SerializeField]
-    private GameObject[] sceneItems = default;
-    [SerializeField]
-    private GameObject[] UICharacters = default;
-    [SerializeField]
-    private GameObject UIDice = default;
-    [SerializeField]
-    private GameObject UIItem = default;
+    private GameObject[] envItems = default;
 
-    private SpriteRenderer sceneBGSR = default;
-    private List<SpriteRenderer> sceneCharacterSRs = default;
-    private List<SpriteRenderer> sceneItemsSRs = default;
-    private List<Image> UICharacterImgs = default;
-    private Image UIDiceImg = default;
-    private Image UIItemImg = default;
+    private SpriteRenderer envBGSR = default;
+    private List<SpriteRenderer> envCharacterSRs = default;
+    private List<SpriteRenderer> envItemSRs = default;
 
     [Header("Other Sprite Images")]
     [SerializeField]
     private Sprite[] BackgroundSprites = default;
     [SerializeField]
-    private Sprite[] sceneSprites = default;
+    private Sprite[] envSprites = default;
     [SerializeField]
     private Sprite[] UISprites = default;
 
@@ -89,7 +92,7 @@ public class AutoplayManager : MonoBehaviour
     private AudioSource BGMAudio = default;
 
     [Header("Variables")]
-    private bool sceneSetted = false;
+    private bool sceneSettled = false;
     [SerializeField]
     private float loadingTime = default;
     [SerializeField, Range(0f, 0.1f)]
@@ -109,54 +112,88 @@ public class AutoplayManager : MonoBehaviour
     private List<string> lineTagSeq = default;
     private List<string> lineDialogSeq = default;
     private ArrayList procdLines = default;
+    private bool lineComplete = false;
+    private Hashtable speechSeqCounter = default;
 
     // KP Specials
     private Characters theKP = default;
 
-    private bool lineComplete = false;
-
-    private Hashtable speechSeqCounter = default;
+    // Formatting Params
+    private int bgInParamNum = 3;
+    private int uisInParamNum = 4;
+    private int esInParamNum = 4;
+    private int rollInParamNum = 4;
+    private int dialogInParamNum = 8;
 
     private void Start()
     {
-        UIForeground.SetActive(true);
+        // Curtain blocking stuff...
+        foregroundUI.SetActive(true);
 
-        dialogImg = UIDialogue.GetComponentInChildren<Image>();
-        nameImg = UIName.GetComponentInChildren<Image>();
-        dialogDisplay = UIDialogue.GetComponentInChildren<TextMeshProUGUI>();
-        nameDisplay = UIName.GetComponentInChildren<TextMeshProUGUI>();
+        // Initialize UI Components
+        dialogImg = dialogueUI.GetComponent<Image>();      
+        dialogDisplay = dialogueUI.GetComponentInChildren<TextMeshProUGUI>();
+        dialogDisplay.text = "";
+        dialogueUI.SetActive(false);
 
-        sceneBGSR = sceneBackground.GetComponentInChildren<SpriteRenderer>();
+        nameImgs = new List<Image>();
+        nameDisplays = new List<TextMeshProUGUI>();
+        foreach(GameObject go in nameUIs)
+        {
+            Image img = go.GetComponent<Image>();
+            nameImgs.Add(img);
+            TextMeshProUGUI textPro = go.GetComponentInChildren<TextMeshProUGUI>();
+            textPro.text = "";
+            nameDisplays.Add(textPro);
+            go.SetActive(false);
+        }
 
-        sceneCharacterSRs = new List<SpriteRenderer>();
-        foreach (GameObject go in sceneCharacters)
+        characterImgs = new List<Image>();
+        foreach (GameObject go in characterUIs)
+        {
+            Image img = go.GetComponent<Image>();
+            characterImgs.Add(img);
+            go.SetActive(false);
+        }
+
+        diceImg = diceUI.GetComponent<Image>();
+        diceUI.SetActive(false);
+
+        itemImg = itemUI.GetComponent<Image>();
+        itemUI.SetActive(false);
+
+        foregroundImg = foregroundUI.GetComponent<Image>();
+
+        // Initialize Environment Components
+        envBGSR = envBackground.GetComponentInChildren<SpriteRenderer>();
+        envBackground.SetActive(false);
+
+        envCharacterSRs = new List<SpriteRenderer>();
+        foreach (GameObject go in envCharacters)
+        {
+            SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
+            envCharacterSRs.Add(sr);
+            go.SetActive(false);
+        }
+
+        envItemSRs = new List<SpriteRenderer>();
+        foreach (GameObject go in envItems)
         {
             SpriteRenderer sr = go.GetComponentInChildren<SpriteRenderer>();
-            sceneCharacterSRs.Add(sr);
+            envItemSRs.Add(sr);
+            go.SetActive(false);
         }
 
-        sceneItemsSRs = new List<SpriteRenderer>();
-        foreach (GameObject go in sceneItems)
-        {
-            SpriteRenderer sr = go.GetComponentInChildren<SpriteRenderer>();
-            sceneItemsSRs.Add(sr);
-        }
-
-        UICharacterImgs = new List<Image>();
-        foreach (GameObject go in UICharacters)
-        {
-            Image sr = go.GetComponentInChildren<Image>();
-            UICharacterImgs.Add(sr);
-        }
-
-        UIDiceImg = UIDice.GetComponentInChildren<Image>();
-        UIItemImg = UIItem.GetComponentInChildren<Image>();
-
+        // Initialize log-line related things
+        fullLog = "";
         rawLines = new List<string>();
+        //progIndex = 0;
+        //currTag = "";
+        //currDialog = "";
         lineTagSeq = new List<string>();
         lineDialogSeq = new List<string>();
         procdLines = new ArrayList();
-
+        lineComplete = false;
         // Initialize a counter for counting line prog of each character
         speechSeqCounter = new Hashtable();
         foreach (Characters c in characters)
@@ -165,17 +202,13 @@ public class AutoplayManager : MonoBehaviour
             speechSeqCounter.Add(c.tagName, (int)0);
         }
 
-        sceneSetted = false;
-        lineComplete = false;
-
-        UIDialogue.SetActive(false);
-
+        sceneSettled = false;
         StartCoroutine(LoadingScene());
     }
 
     private void Update()
     {
-        //if(UIDialogue.activeInHierarchy)
+        //if(dialogueUI.activeInHierarchy)
         //{
         //    if (dialogDisplay.text == lineDialogSeq[progIndex])
         //    {
@@ -197,7 +230,7 @@ public class AutoplayManager : MonoBehaviour
     private IEnumerator LoadingScene()
     {
 
-        StartCoroutine(BlackIn(UIForeground, loadingTime));
+        StartCoroutine(BlackIn(foregroundUI, loadingTime));
         yield return new WaitForSeconds(1f);
         ImportDialog(currentSceneNum);
     }
@@ -218,9 +251,12 @@ public class AutoplayManager : MonoBehaviour
     {
         ProcessLog(txt);
 
-        UIDialogue.SetActive(true);
+        dialogueUI.SetActive(true);
         dialogDisplay.text = "";
-        nameDisplay.text = "";
+        foreach(TextMeshProUGUI textPro in nameDisplays)
+        {
+            textPro.text = "";
+        }
 
         // ExecutingLine();
         StartCoroutine(ExecutingLine());
@@ -237,7 +273,7 @@ public class AutoplayManager : MonoBehaviour
         string ssLineFormat = @".*\|.*\|.*\|.*";
         string uisLineFormat = @".*\|.*\|.*\|.*";
         string rolLineFormat = @".*\|.*\|.*\|.*";
-        string dialogLineFormat = @".*\|.*\|.*\|.*";
+        string dialogLineFormat = @".*\|.*\|.*\|.*\|.*\|.*\|.*\|.*";
 
         string splitPattern0 = @"^\[";
         string splitPattern1 = @"\]\:";
@@ -287,9 +323,9 @@ public class AutoplayManager : MonoBehaviour
                     {
                         string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
 
-                        int?[] intParams = new int?[3];
+                        int?[] intParams = new int?[bgInParamNum];
                         int counter = 0;
-                        while(counter < 3)
+                        while(counter < intParams.Length)
                         {
                             intParams[counter] = ToNullableInt(in_params[counter]);
                             counter++;
@@ -305,21 +341,21 @@ public class AutoplayManager : MonoBehaviour
                         break;
                     }
                 }
-                else if (tmpTag == SSTAG)
+                else if (tmpTag == ESTAG)
                 {
                     Match _m = Regex.Match(segdLine3[0], ssLineFormat);
                     if (_m.Length > 0)
                     {
                         string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
                         //
-                        int?[] intParams = new int?[4];
+                        int?[] intParams = new int?[esInParamNum];
                         int counter = 0;
-                        while (counter < 4)
+                        while (counter < intParams.Length)
                         {
                             intParams[counter] = ToNullableInt(in_params[counter]);
                             counter++;
                         }
-                        SSLine _line = new SSLine(SSTAG, intParams[0], intParams[1], intParams[2], intParams[3]);
+                        ESLine _line = new ESLine(ESTAG, intParams[0], intParams[1], intParams[2], intParams[3]);
                         lineTagSeq.Add(tmpTag);
                         lineDialogSeq.Add("");
                         procdLines.Add(_line);
@@ -337,9 +373,9 @@ public class AutoplayManager : MonoBehaviour
                     {
                         string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
                         //
-                        int?[] intParams = new int?[4];
+                        int?[] intParams = new int?[uisInParamNum];
                         int counter = 0;
-                        while (counter < 4)
+                        while (counter < intParams.Length)
                         {
                             intParams[counter] = ToNullableInt(in_params[counter]);
                             counter++;
@@ -362,9 +398,9 @@ public class AutoplayManager : MonoBehaviour
                     {
                         string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
                         //
-                        int?[] intParams = new int?[4];
+                        int?[] intParams = new int?[rollInParamNum];
                         int counter = 0;
-                        while (counter < 4)
+                        while (counter < intParams.Length)
                         {
                             intParams[counter] = ToNullableInt(in_params[counter]);
                             counter++;
@@ -394,15 +430,16 @@ public class AutoplayManager : MonoBehaviour
                                 string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
 
                                 //
-                                int?[] intParams = new int?[4];
+                                int?[] intParams = new int?[dialogInParamNum];
                                 int counter = 0;
-                                while (counter < 4)
+                                while (counter < intParams.Length)
                                 {
                                     intParams[counter] = ToNullableInt(in_params[counter]);
                                     counter++;
                                 }
 
-                                DialogLine _line = new DialogLine(c.tagName, intParams[0], intParams[1], intParams[2], intParams[3], seqCounter, tmpDialog);
+                                DialogLine _line = new DialogLine(c.tagName, intParams[0], intParams[1], intParams[2], intParams[3], seqCounter, tmpDialog,
+                                    intParams[4], intParams[5], intParams[6], intParams[7]);
                                 lineTagSeq.Add(tmpTag);
                                 lineDialogSeq.Add(tmpDialog);
                                 procdLines.Add(_line);
@@ -431,7 +468,7 @@ public class AutoplayManager : MonoBehaviour
     {
         currTag = lineTagSeq[progIndex];
         currDialog = lineDialogSeq[progIndex];
-        // sceneSetted?
+        // sceneSettled?
 
         if (currTag == BGTAG)
         {
@@ -442,17 +479,17 @@ public class AutoplayManager : MonoBehaviour
             if (currLine.spriteSelect != null)
             {
                 // can be changed in other ways
-                sceneBGSR.sprite = BackgroundSprites[(int)currLine.spriteSelect];
+                envBGSR.sprite = BackgroundSprites[(int)currLine.spriteSelect];
             }
             else
             {
                 // show default background
-                sceneBGSR.sprite = BackgroundSprites[0];
+                envBGSR.sprite = BackgroundSprites[0];
             }
 
             if(currLine.status != null)
             {
-                // Moving-in or Moving-out? Moving should change the sceneBackground Gameobject
+                // Moving-in or Moving-out? Moving should change the envBackground Gameobject
             }
 
             if(currLine.vfxSelect != null)
@@ -460,29 +497,29 @@ public class AutoplayManager : MonoBehaviour
                 // ... with which kind of VFX?
                 if (currLine.vfxSelect == 0)
                 {
-                    StartCoroutine(BlackIn(UIForeground, 0.3f));
+                    StartCoroutine(BlackIn(foregroundUI, 0.3f));
                 }
                 else if (currLine.vfxSelect == 1)
                 {
-                    StartCoroutine(BlackOut(UIForeground, 0.3f));
+                    StartCoroutine(BlackOut(foregroundUI, 0.3f));
                 }
             }
             
         }
-        else if (currTag == SSTAG)
+        else if (currTag == ESTAG)
         {
             readingSpeed = 1f;
 
             Sprite sprite2Show = default;
-            SSLine currLine = (SSLine)procdLines[progIndex];
+            ESLine currLine = (ESLine)procdLines[progIndex];
             if(currLine.spriteSelect != null)
             {
-                sprite2Show = sceneSprites[(int)currLine.spriteSelect];
+                sprite2Show = envSprites[(int)currLine.spriteSelect];
             }
 
             if(currLine.posSelect != null)
             {
-                sceneItemsSRs[(int)currLine.posSelect].sprite = sprite2Show;
+                envItemSRs[(int)currLine.posSelect].sprite = sprite2Show;
             }
 
             if(currLine.status != null)
@@ -505,33 +542,33 @@ public class AutoplayManager : MonoBehaviour
             {
                 if (currLine.spriteSelect != null)
                 {
-                    UIItem.SetActive(true);
+                    itemUI.SetActive(true);
                     sprite2Show = UISprites[(int)currLine.spriteSelect];
-                    UIItemImg.sprite = sprite2Show;
-                    UIItemImg.SetNativeSize();
+                    itemImg.sprite = sprite2Show;
+                    itemImg.SetNativeSize();
                 }
                 
             }
             else if (currLine.status == 0)
             {
-                UIItem.SetActive(false);
+                itemUI.SetActive(false);
             }
             else
             {
                 sprite2Show = null;
-                UIItemImg.sprite = sprite2Show;
-                UIItem.SetActive(false);
+                itemImg.sprite = sprite2Show;
+                itemUI.SetActive(false);
             }
             //if (currLine.posSelect != null)
             //{
-            //    UIItemImg.sprite = sprite2Show;
-            //    UIItemImg.SetNativeSize();
+            //    itemImg.sprite = sprite2Show;
+            //    itemImg.SetNativeSize();
             //}
             //else
             //{
             //    // default Image UI
-            //    UIItemImg.sprite = sprite2Show;
-            //    UIItemImg.SetNativeSize();
+            //    itemImg.sprite = sprite2Show;
+            //    itemImg.SetNativeSize();
             //}
 
             if (currLine.vfxSelect != null)
@@ -558,13 +595,13 @@ public class AutoplayManager : MonoBehaviour
 
             if (currLine.posSelect != null)
             {
-                UIDiceImg.sprite = sprite2Show;
-                UIDiceImg.SetNativeSize();
+                diceImg.sprite = sprite2Show;
+                diceImg.SetNativeSize();
             }
             else
             {
-                UIDiceImg.sprite = sprite2Show;
-                UIDiceImg.SetNativeSize();
+                diceImg.sprite = sprite2Show;
+                diceImg.SetNativeSize();
             }
             
 
@@ -612,42 +649,42 @@ public class AutoplayManager : MonoBehaviour
                         {
                             if (currLine.emoSelect != null && currLine.posSelect != null)
                             {
-                                UICharacterImgs[(int)currLine.posSelect].sprite = c.emotionSprites[(int)currLine.emoSelect];
+                                characterImgs[(int)currLine.posSelect].sprite = c.emotionSprites[(int)currLine.emoSelect];
                                 c.SetCurrentPosition((int)currLine.posSelect);
-                                UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                                characterImgs[theKP.GetCurrentPosition()].SetNativeSize();
                             }
                             else if (currLine.emoSelect != null && currLine.posSelect == null)
                             {
-                                UICharacterImgs[0].sprite = c.emotionSprites[(int)currLine.emoSelect];
+                                characterImgs[0].sprite = c.emotionSprites[(int)currLine.emoSelect];
                                 c.SetCurrentPosition(0);
-                                UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                                characterImgs[theKP.GetCurrentPosition()].SetNativeSize();
                             }
                             else if (currLine.emoSelect == null && currLine.posSelect != null)
                             {
-                                UICharacterImgs[(int)currLine.posSelect].sprite = c.emotionSprites[1];
+                                characterImgs[(int)currLine.posSelect].sprite = c.emotionSprites[1];
                                 c.SetCurrentPosition((int)currLine.posSelect);
-                                UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                                characterImgs[theKP.GetCurrentPosition()].SetNativeSize();
                             }
                             else
                             {
-                                UICharacterImgs[0].sprite = c.emotionSprites[1];
+                                characterImgs[0].sprite = c.emotionSprites[1];
                                 c.SetCurrentPosition(0);
-                                UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                                characterImgs[theKP.GetCurrentPosition()].SetNativeSize();
                             }
                         }
                         else if (currLine.status == 2) // character leave
                         {
                             if (c.GetCurrentPosition() != 999)
                             {
-                                UICharacterImgs[c.GetCurrentPosition()].sprite = null;
+                                characterImgs[c.GetCurrentPosition()].sprite = null;
                             }
                         }
                         else
                         {
                             // should be changed
-                            UICharacterImgs[0].sprite = c.emotionSprites[1];
+                            characterImgs[0].sprite = c.emotionSprites[1];
                             c.SetCurrentPosition(0);
-                            UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                            characterImgs[theKP.GetCurrentPosition()].SetNativeSize();
                         }
                     }
                     else
@@ -657,35 +694,36 @@ public class AutoplayManager : MonoBehaviour
                         {
                             if (theKP.GetCurrentPosition() != 999)
                             {
-                                UICharacterImgs[theKP.GetCurrentPosition()].sprite = theKP.emotionSprites[0];
-                                UICharacterImgs[theKP.GetCurrentPosition()].SetNativeSize();
+                                characterImgs[theKP.GetCurrentPosition()].sprite = theKP.emotionSprites[0];
+                                characterImgs[theKP.GetCurrentPosition()].SetNativeSize();
                             }
                         }
 
-                        //UICharacterImgs[0].sprite = characters[0].emotionSprites[0];
-                        nameDisplay.text = c.displayName.ToString();
+                        //characterImgs[0].sprite = characters[0].emotionSprites[0];
+                        // should be changed 
+                        nameDisplays[0].text = c.displayName.ToString();
                         if(currLine.status != null || currLine.status != 0)
                         {
                             if(currLine.status == 1) // character in
                             {
                                 if(currLine.emoSelect != null && currLine.posSelect != null)
                                 {
-                                    sceneCharacterSRs[(int)currLine.posSelect].sprite = c.emotionSprites[(int)currLine.emoSelect];
+                                    envCharacterSRs[(int)currLine.posSelect].sprite = c.emotionSprites[(int)currLine.emoSelect];
                                     c.SetCurrentPosition((int)currLine.posSelect);
                                 }
                                 else if(currLine.emoSelect != null && currLine.posSelect == null)
                                 {
-                                    sceneCharacterSRs[0].sprite = c.emotionSprites[(int)currLine.emoSelect];
+                                    envCharacterSRs[0].sprite = c.emotionSprites[(int)currLine.emoSelect];
                                     c.SetCurrentPosition(0);
                                 }
                                 else if (currLine.emoSelect == null && currLine.posSelect != null)
                                 {
-                                    sceneCharacterSRs[(int)currLine.posSelect].sprite = c.emotionSprites[0];
+                                    envCharacterSRs[(int)currLine.posSelect].sprite = c.emotionSprites[0];
                                     c.SetCurrentPosition((int)currLine.posSelect);
                                 }
                                 else
                                 {
-                                    sceneCharacterSRs[0].sprite = c.emotionSprites[0];
+                                    envCharacterSRs[0].sprite = c.emotionSprites[0];
                                     c.SetCurrentPosition(0);
                                 }
                             }
@@ -693,19 +731,19 @@ public class AutoplayManager : MonoBehaviour
                             {
                                if(c.GetCurrentPosition()!= 999)
                                 {
-                                    sceneCharacterSRs[c.GetCurrentPosition()].sprite = null;
+                                    envCharacterSRs[c.GetCurrentPosition()].sprite = null;
                                 }
                             }
                             else if(currLine.emoSelect != null)
                             {
-                                sceneCharacterSRs[0].sprite = c.emotionSprites[(int)currLine.emoSelect];
+                                envCharacterSRs[0].sprite = c.emotionSprites[(int)currLine.emoSelect];
                             }
                             else
                             {
                                 // should be changed
                                 if(c.emotionSprites.Length > 0)
                                 {
-                                    sceneCharacterSRs[0].sprite = c.emotionSprites[0];
+                                    envCharacterSRs[0].sprite = c.emotionSprites[0];
                                 }                              
                             }
 
@@ -735,26 +773,34 @@ public class AutoplayManager : MonoBehaviour
     private void NextLine()
     {
         lineComplete = false;
-        if (progIndex < procdLines.Count - 1)
+        if (progIndex < procdLines.Count)
         {
             progIndex++;
             // yield return new WaitForSeconds(readingSpeed);
             dialogDisplay.text = "";
-            nameDisplay.text = "";
+            foreach (TextMeshProUGUI textPro in nameDisplays)
+            {
+                textPro.text = "";
+            }
             StartCoroutine(ExecutingLine());
         }
         else
         {
             // yield return new WaitForSeconds(readingSpeed);
             dialogDisplay.text = "";
-            nameDisplay.text = "";
+            foreach (TextMeshProUGUI textPro in nameDisplays)
+            {
+                textPro.text = "";
+            }
             lineComplete = false;
-            UIDialogue.SetActive(false);
+            dialogueUI.SetActive(false);
             progIndex = 0;
+            fullLog = "";
             rawLines = new List<string>();
             lineTagSeq = new List<string>();
             procdLines = new ArrayList();
             speechSeqCounter = new Hashtable();
+            sceneSettled = false;
             // Other lists ...
         }
     }
