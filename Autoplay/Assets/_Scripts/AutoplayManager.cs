@@ -125,12 +125,17 @@ public class AutoplayManager : MonoBehaviour
     private int rollInParamNum = 4;
     private int dialogInParamNum = 8;
 
+    // Character Display Controls
+    private CharacterDisplayController characterDisplayControls = default;
+    
     // Effects
     private TransitionEffectsController transitionEffects = default;
 
     private void Start()
     {
+        characterDisplayControls = this.GetComponent<CharacterDisplayController>();
         transitionEffects = this.GetComponent<TransitionEffectsController>();
+
         // Curtain blocking stuff...
         foregroundUI.SetActive(true);
 
@@ -187,6 +192,8 @@ public class AutoplayManager : MonoBehaviour
             envItemSRs.Add(sr);
             go.SetActive(false);
         }
+
+        characterDisplayControls.InitializeEnvCharacterList(envCharacters);
 
         // Initialize log-line related things
         fullLog = "";
@@ -823,6 +830,11 @@ public class AutoplayManager : MonoBehaviour
             _textDisplay.text += letter;
             yield return new WaitForSeconds(_typingSpeed);
         }
+    }
+
+    public GameObject[] GetEnvCharacters()
+    {
+        return envCharacters;
     }
 
     /// Visual Effects

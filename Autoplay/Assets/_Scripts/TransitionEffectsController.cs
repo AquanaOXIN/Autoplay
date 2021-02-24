@@ -65,4 +65,10 @@ public class TransitionEffectsController : MonoBehaviour
             go.GetComponent<SpriteRenderer>().color = new Color(startColor.r, startColor.g, startColor.b, 0f);
         }
     }
+
+    public void SetAlphaImmediately(GameObject go, float alpha)
+    {
+        Color originalColor = go.GetComponent<SpriteRenderer>().color;
+        go.GetComponent<SpriteRenderer>().color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+    }
 }
