@@ -125,8 +125,12 @@ public class AutoplayManager : MonoBehaviour
     private int rollInParamNum = 4;
     private int dialogInParamNum = 8;
 
+    // Effects
+    private TransitionEffectsController transitionEffects = default;
+
     private void Start()
     {
+        transitionEffects = this.GetComponent<TransitionEffectsController>();
         // Curtain blocking stuff...
         foregroundUI.SetActive(true);
 
@@ -229,9 +233,9 @@ public class AutoplayManager : MonoBehaviour
 
     private IEnumerator LoadingScene()
     {
-
-        StartCoroutine(BlackIn(foregroundUI, loadingTime));
-        yield return new WaitForSeconds(1f);
+        // StartCoroutine(BlackIn(foregroundUI, loadingTime));
+        StartCoroutine(transitionEffects.UIFadeOut(foregroundUI, loadingTime));
+        yield return new WaitForSeconds(loadingTime - 1f);
         ImportDialog(currentSceneNum);
     }
 
