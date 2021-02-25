@@ -75,12 +75,12 @@ public class CharacterDisplayController : MonoBehaviour
         }
     }
 
-    private IEnumerator CharacterShowing(int index) // add Y offset
+    private IEnumerator CharacterShowing(int index) // add VFX
     {
         if((int)alphaStatus[envCharacters[index]] == 0)
         {
             envCharacters[index].SetActive(true);
-            StartCoroutine(transitionEffects.FadeIn(envCharacters[index], 1f));
+            StartCoroutine(transitionEffects.FadeIn(envCharacters[index], 1f)); // VFX Select, initial position Y set by manager
             alphaStatus[envCharacters[index]] = 1;         
             yield return new WaitForSeconds(0.1f);
             UpdateNumOnScreen();
@@ -93,7 +93,7 @@ public class CharacterDisplayController : MonoBehaviour
     {
         if((int)alphaStatus[envCharacters[index]] > 0)
         {
-            StartCoroutine(transitionEffects.FadeOut(envCharacters[index], 1f));
+            StartCoroutine(transitionEffects.FadeOut(envCharacters[index], 1f)); //  if slide out remember to reset the position to Vector3.zero
             alphaStatus[envCharacters[index]] = 0;
             yield return new WaitForSeconds(1f);
             UpdateNumOnScreen();
@@ -102,12 +102,12 @@ public class CharacterDisplayController : MonoBehaviour
         }
     }
 
-    public void MoveCharacterPositionX(int _cur, int _tar)
+    public void MoveCharacterPosition(int _cur, int _tar)
     {
-        StartCoroutine(SingleCharacterMovePositionX(_cur, _tar));
+        StartCoroutine(SingleCharacterMovePosition(_cur, _tar));
     }
 
-    private IEnumerator SingleCharacterMovePositionX(int currPos, int tarPos) // int for positions
+    private IEnumerator SingleCharacterMovePosition(int currPos, int tarPos) // int for positions
     {
         if(envCharacters[tarPos].activeInHierarchy && (int)alphaStatus[envCharacters[tarPos]] > 0) // if tarPos already has a character displayed
         {
@@ -134,6 +134,9 @@ public class CharacterDisplayController : MonoBehaviour
         }
         else if((int)alphaStatus[envCharacters[tarPos]] == 0)
         {
+            Vector3 destinate_position = envCharacters[tarPos].transform.position;
+            Vector3 current_position = envCharacters[currPos].transform.position;
+            envCharacters[tarPos].transform.position = new Vector3(destinate_position.x, current_position.y, 0);
             // should be changed, sprites should be sign in autoplay manager
             envCharacters[tarPos].GetComponent<SpriteRenderer>().sprite = envCharacters[currPos].GetComponent<SpriteRenderer>().sprite;
             DecreaseOneCharacter(currPos);
