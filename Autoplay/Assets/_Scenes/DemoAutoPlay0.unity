@@ -3447,10 +3447,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01d614e6b54178d429574670537a8ec3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputFieldShowObj: {fileID: 21668962}
-  inputFieldHideObj: {fileID: 519717195}
-  skinWidth: 0.25
-  defaultSortingOrderBase: 5
   envCharacters:
   - {fileID: 579906229}
   - {fileID: 1795879211}
@@ -3459,6 +3455,7 @@ MonoBehaviour:
   - {fileID: 929571744}
   - {fileID: 2050595085}
   numOnScreen: 0
+  defaultSortingOrderBase: 5
 --- !u!114 &490282284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4944,7 +4941,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &660085163
 Transform:
   m_ObjectHideFlags: 0
@@ -4977,7 +4974,7 @@ MonoBehaviour:
   m_Color: {r: 1, g: 0.83926404, b: 0, a: 1}
   m_Intensity: 5
   m_LightVolumeOpacity: 0
-  m_ApplyToSortingLayers: 0000000025c3f55f8b23e549
+  m_ApplyToSortingLayers: 000000008b23e549
   m_LightCookieSprite: {fileID: 0}
   m_UseNormalMap: 1
   m_LightOrder: 0
@@ -12009,7 +12006,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 960, y: -253}
+  m_AnchoredPosition: {x: 960, y: 250}
   m_SizeDelta: {x: 1920, y: 450}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2013020331

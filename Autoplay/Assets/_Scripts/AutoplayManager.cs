@@ -131,23 +131,20 @@ public class AutoplayManager : MonoBehaviour
     // Effects
     private TransitionEffectsController transitionEffects = default;
 
-    private void Start()
+    private void Awake()
     {
-        characterDisplayControls = this.GetComponent<CharacterDisplayController>();
-        transitionEffects = this.GetComponent<TransitionEffectsController>();
-
         // Curtain blocking stuff...
         foregroundUI.SetActive(true);
 
         // Initialize UI Components
-        dialogImg = dialogueUI.GetComponent<Image>();      
+        dialogImg = dialogueUI.GetComponent<Image>();
         dialogDisplay = dialogueUI.GetComponentInChildren<TextMeshProUGUI>();
         dialogDisplay.text = "";
         dialogueUI.SetActive(false);
 
         nameImgs = new List<Image>();
         nameDisplays = new List<TextMeshProUGUI>();
-        foreach(GameObject go in nameUIs)
+        foreach (GameObject go in nameUIs)
         {
             Image img = go.GetComponent<Image>();
             nameImgs.Add(img);
@@ -192,19 +189,24 @@ public class AutoplayManager : MonoBehaviour
             envItemSRs.Add(sr);
             go.SetActive(false);
         }
+    }
+
+
+    private void Start()
+    {
+        characterDisplayControls = this.GetComponent<CharacterDisplayController>();
+        transitionEffects = this.GetComponent<TransitionEffectsController>();
 
         characterDisplayControls.InitializeEnvCharacterList(envCharacters);
 
         // Initialize log-line related things
         fullLog = "";
         rawLines = new List<string>();
-        //progIndex = 0;
-        //currTag = "";
-        //currDialog = "";
         lineTagSeq = new List<string>();
         lineDialogSeq = new List<string>();
         procdLines = new ArrayList();
         lineComplete = false;
+
         // Initialize a counter for counting line prog of each character
         speechSeqCounter = new Hashtable();
         foreach (Characters c in characters)
@@ -219,28 +221,14 @@ public class AutoplayManager : MonoBehaviour
 
     private void Update()
     {
-        //if(dialogueUI.activeInHierarchy)
-        //{
-        //    if (dialogDisplay.text == lineDialogSeq[progIndex])
-        //    {
-        //        lineComplete = true;
-        //    }
-        //    if (lineComplete)
-        //    {
-        //        // StartCoroutine(NextLine());
-        //        NextLine();
-        //    }
-        //}
         if (lineComplete)
         {
-            // StartCoroutine(NextLine());
             NextLine();
         }
     }
 
     private IEnumerator LoadingScene()
     {
-        // StartCoroutine(BlackIn(foregroundUI, loadingTime));
         StartCoroutine(transitionEffects.UIFadeOut(foregroundUI, loadingTime));
         yield return new WaitForSeconds(loadingTime - 1f);
         ImportDialog(currentSceneNum);
@@ -268,8 +256,6 @@ public class AutoplayManager : MonoBehaviour
         {
             textPro.text = "";
         }
-
-        // ExecutingLine();
         StartCoroutine(ExecutingLine());
     }
 
@@ -508,11 +494,13 @@ public class AutoplayManager : MonoBehaviour
                 // ... with which kind of VFX?
                 if (currLine.vfxSelect == 0)
                 {
-                    StartCoroutine(BlackIn(foregroundUI, 0.3f));
+                    StartCoroutine(transitionEffects.UIFadeIn(foregroundUI, 0.3f));
+                    
                 }
                 else if (currLine.vfxSelect == 1)
                 {
-                    StartCoroutine(BlackOut(foregroundUI, 0.3f));
+                    StartCoroutine(transitionEffects.UIFadeOut(foregroundUI, 0.3f));
+                    
                 }
             }
             
@@ -830,11 +818,6 @@ public class AutoplayManager : MonoBehaviour
             _textDisplay.text += letter;
             yield return new WaitForSeconds(_typingSpeed);
         }
-    }
-
-    public GameObject[] GetEnvCharacters()
-    {
-        return envCharacters;
     }
 
     /// Visual Effects
