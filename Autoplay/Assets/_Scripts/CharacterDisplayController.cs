@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class CharacterDisplayController : MonoBehaviour
 {
-    public List<GameObject> envCharacters = default;
+    [SerializeField]
+    private List<GameObject> envCharacters = default;
     [SerializeField]
     private int numOnScreen;
     [SerializeField]
@@ -133,12 +134,12 @@ public class CharacterDisplayController : MonoBehaviour
         }
         else if((int)alphaStatus[envCharacters[tarPos]] == 0)
         {
+            // should be changed, sprites should be sign in autoplay manager
             envCharacters[tarPos].GetComponent<SpriteRenderer>().sprite = envCharacters[currPos].GetComponent<SpriteRenderer>().sprite;
             DecreaseOneCharacter(currPos);
             yield return new WaitForSeconds(1f);
             IncreaseOneCharacter(tarPos);
         }
-
     }
 
     public void UpdateCharacterPositions()

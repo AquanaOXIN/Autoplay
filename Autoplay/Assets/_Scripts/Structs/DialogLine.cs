@@ -4,6 +4,7 @@ public struct DialogLine
 {
     public string speakerName; // Initialize by TAG when processing the file
     public int? emoSelect; // which pose/emotion does the speaking character use
+    // if it's gonna be anime, then it should be a num stands for a anim state
     public int? posSelect; // for position
     public int? status; // 0 - stay | 1 - in | 2 - leave, etc
     public int? vfxSelect;

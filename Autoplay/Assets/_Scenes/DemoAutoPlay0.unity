@@ -3447,13 +3447,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01d614e6b54178d429574670537a8ec3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  envCharacters:
-  - {fileID: 579906229}
-  - {fileID: 1795879211}
-  - {fileID: 1709898953}
-  - {fileID: 416086127}
-  - {fileID: 929571744}
-  - {fileID: 2050595085}
+  envCharacters: []
   numOnScreen: 0
   defaultSortingOrderBase: 5
 --- !u!114 &490282284
@@ -5369,7 +5363,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
