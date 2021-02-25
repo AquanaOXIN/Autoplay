@@ -13,9 +13,11 @@ public class SingleCharacterDisplayController : MonoBehaviour
     private bool initLerp;
     private bool isLerping;
     private float t;
-    private float baseSpeed = 5.0f;
+    [SerializeField]
+    private float baseSpeed = 3.0f, moveCurveScale = 0.01f;
     private float moveSpeed;
-
+    [SerializeField]
+    private AnimationCurve moveCurve = default;
     private Vector3 targetPos;
 
     private void Start()
@@ -45,6 +47,7 @@ public class SingleCharacterDisplayController : MonoBehaviour
     private void LerpToPosition()
     {
         Vector3 startPos = this.transform.position;
+        // float dist = Vector3.Distance(targetPos, startPos);
         if (!initLerp)
         {
             t = 0;
@@ -60,6 +63,9 @@ public class SingleCharacterDisplayController : MonoBehaviour
             initLerp = false;
         }
         Vector3 tp = Vector3.Lerp(startPos, targetPos, t);
+        float curveY = moveCurve.Evaluate(t);
+        curveY *= moveCurveScale;
+        tp.y += curveY;
         this.transform.position = tp;
     }
 }
