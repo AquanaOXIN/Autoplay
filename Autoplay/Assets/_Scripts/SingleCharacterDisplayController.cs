@@ -14,8 +14,9 @@ public class SingleCharacterDisplayController : MonoBehaviour
     private bool isLerping;
     private float t;
     [SerializeField]
-    private float baseSpeed = 3.0f, moveCurveScale = 0.01f;
+    private float baseSpeed = 1.0f, moveCurveScale = 0.01f;
     private float moveSpeed;
+    private float defaultMoveCurveScale = 0.01f;
     [SerializeField]
     private AnimationCurve moveCurve = default;
     private Vector3 targetPos;
@@ -24,6 +25,7 @@ public class SingleCharacterDisplayController : MonoBehaviour
     {
         initLerp = false;
         isLerping = false;
+        moveCurveScale = 0.01f;
     }
 
     private void Update()
@@ -38,6 +40,17 @@ public class SingleCharacterDisplayController : MonoBehaviour
     {
         targetPos = _pos;
     }
+
+    public void SetLerpScale(float _scale)
+    {
+        moveCurveScale = _scale;
+    }
+
+    public void ResetLerpScale()
+    {
+        moveCurveScale = defaultMoveCurveScale;
+    }
+
 
     public void StartLerping()
     {

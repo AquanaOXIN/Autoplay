@@ -4,23 +4,17 @@ using UnityEngine;
 
 public class CharacterDisplayController : MonoBehaviour
 {
-    public GameObject inputFieldShowObj;
-    public GameObject inputFieldHideObj;
-    private int inputShow;
-    private int inputHide;
-
-    public float skinWidth = 0.25f;
-
-    [SerializeField]
-    private int defaultSortingOrderBase = 5;
     public List<GameObject> envCharacters = default;
     [SerializeField]
     private int numOnScreen;
+    [SerializeField]
+    private int defaultSortingOrderBase = 5;
+
     private float worldWidth = 18f;
     private float intervalDist;
+    private float skinWidth = 0.25f;
 
     private Hashtable alphaStatus = default; // 0 - transparent | 1 - fully | 2 - partial
-
     private TransitionEffectsController transitionEffects = default;
 
     private void Awake()
@@ -49,9 +43,10 @@ public class CharacterDisplayController : MonoBehaviour
 
     private void UpdateNumOnScreen()
     {
+        numOnScreen = 0;
         foreach(GameObject go in envCharacters)
         {
-            if((int)alphaStatus[go] == 1 && go.activeInHierarchy)
+            if((int)alphaStatus[go] > 0 && go.activeInHierarchy)
             {
                 numOnScreen++;
             }
@@ -61,20 +56,6 @@ public class CharacterDisplayController : MonoBehaviour
     public int GetNumOnScreen()
     {
         return numOnScreen;
-    }
-
-    public void CharacterSpeaking(int index)
-    {
-        transitionEffects.SetAlphaImmediately(envCharacters[index], 1f);
-        alphaStatus[envCharacters[index]] = 1;
-        for (int i = 0; i < envCharacters.Count; i++)
-        {
-            if(envCharacters[i].activeInHierarchy && (int)alphaStatus[envCharacters[i]] > 0 && (int)alphaStatus[envCharacters[i]] != 2) // if displayed and NOT already partially transparent
-            {
-                transitionEffects.SetAlphaImmediately(envCharacters[i], 0.5f);
-                alphaStatus[envCharacters[i]] = 2;
-            }
-        }
     }
 
     public void IncreaseOneCharacter(int index)
@@ -93,16 +74,16 @@ public class CharacterDisplayController : MonoBehaviour
         }
     }
 
-    private IEnumerator CharacterShowing(int index)
+    private IEnumerator CharacterShowing(int index) // add Y offset
     {
         if((int)alphaStatus[envCharacters[index]] == 0)
         {
-            numOnScreen++;
-            SetDistance();
             envCharacters[index].SetActive(true);
             StartCoroutine(transitionEffects.FadeIn(envCharacters[index], 1f));
             alphaStatus[envCharacters[index]] = 1;         
             yield return new WaitForSeconds(0.1f);
+            UpdateNumOnScreen();
+            SetDistance();
             UpdateCharacterPositions();
         }
     }
@@ -114,27 +95,15 @@ public class CharacterDisplayController : MonoBehaviour
             StartCoroutine(transitionEffects.FadeOut(envCharacters[index], 1f));
             alphaStatus[envCharacters[index]] = 0;
             yield return new WaitForSeconds(1f);
-            // envCharacters[index].SetActive(false); // may need to change 
-            // transitionEffects.ResetSpriteRenderer(envCharacters[index]);
-            numOnScreen--;
+            UpdateNumOnScreen();
             SetDistance();
             UpdateCharacterPositions();
         }
     }
 
-    public void MoveCharacter13()
+    public void MoveCharacterPositionX(int _cur, int _tar)
     {
-        StartCoroutine(SingleCharacterMovePositionX(1, 3));
-    }
-
-    public void MoveCharacter05()
-    {
-        StartCoroutine(SingleCharacterMovePositionX(0, 5));
-    }
-
-    public void MoveCharacters42()
-    {
-        StartCoroutine(SingleCharacterMovePositionX(4, 2));
+        StartCoroutine(SingleCharacterMovePositionX(_cur, _tar));
     }
 
     private IEnumerator SingleCharacterMovePositionX(int currPos, int tarPos) // int for positions
@@ -157,8 +126,10 @@ public class CharacterDisplayController : MonoBehaviour
                 targetPosition = new Vector3(destX - skinWidth, current_position.y, 0);
             }
             envCharacters[currPos].GetComponent<SingleCharacterDisplayController>().SetTargetPos(targetPosition);
+            envCharacters[currPos].GetComponent<SingleCharacterDisplayController>().SetLerpScale(0.5f);
             envCharacters[currPos].GetComponent<SingleCharacterDisplayController>().StartLerping();
             yield return new WaitForSeconds(1f);
+            envCharacters[currPos].GetComponent<SingleCharacterDisplayController>().ResetLerpScale();
         }
         else if((int)alphaStatus[envCharacters[tarPos]] == 0)
         {
@@ -177,20 +148,9 @@ public class CharacterDisplayController : MonoBehaviour
             int order = 0;
             for (int i = 0; i < envCharacters.Count ; i++)
             {
-                if(envCharacters[i].activeInHierarchy && (int)alphaStatus[envCharacters[i]] > 0) //
+                if(envCharacters[i].activeInHierarchy && (int)alphaStatus[envCharacters[i]] > 0) 
                 {
-                    if(envCharacters[i].GetComponent<SpriteRenderer>().sortingOrder > defaultSortingOrderBase + 1)
-                    {
-                        envCharacters[i].GetComponent<SpriteRenderer>().sortingOrder = defaultSortingOrderBase;
-                    }
-                    if(i%2 == 0)
-                    {
-                        envCharacters[i].GetComponent<SpriteRenderer>().sortingOrder = defaultSortingOrderBase + 1;
-                    }
-                    else
-                    {
-                        envCharacters[i].GetComponent<SpriteRenderer>().sortingOrder = defaultSortingOrderBase - 1;
-                    }
+                    ResetSortingOrder(i);
 
                     Vector3 currentPosition = envCharacters[i].transform.position;
                     Vector3 targetPosition = new Vector3(worldWidth / 2 - intervalDist * (order + 1), currentPosition.y, 0);
@@ -209,8 +169,10 @@ public class CharacterDisplayController : MonoBehaviour
             int order = 0;
             for (int i = 0; i < envCharacters.Count; i++)
             {
-                if(envCharacters[i].activeInHierarchy)
+                if(envCharacters[i].activeInHierarchy && (int)alphaStatus[envCharacters[i]] > 0)
                 {
+                    ResetSortingOrder(i);
+
                     Vector3 currentPosition = envCharacters[i].transform.position;
                     envCharacters[i].transform.position = new Vector3(worldWidth / 2 - intervalDist * (order + 1), currentPosition.y, 0);
                     order++;
@@ -218,6 +180,56 @@ public class CharacterDisplayController : MonoBehaviour
             }
         }
     }
+
+    private void ResetSortingOrder(int index)
+    {
+        if (envCharacters[index].GetComponent<SpriteRenderer>().sortingOrder > defaultSortingOrderBase + 1)
+        {
+            envCharacters[index].GetComponent<SpriteRenderer>().sortingOrder = defaultSortingOrderBase;
+        }
+        if (index % 2 == 0)
+        {
+            envCharacters[index].GetComponent<SpriteRenderer>().sortingOrder = defaultSortingOrderBase + 1;
+        }
+        else
+        {
+            envCharacters[index].GetComponent<SpriteRenderer>().sortingOrder = defaultSortingOrderBase - 1;
+        }
+    }
+
+    public void CharacterSpeaking(int index) // which POSITION's character is speaking
+    {
+        if(envCharacters[index].activeInHierarchy && (int)alphaStatus[envCharacters[index]] > 0)
+        {
+            transitionEffects.SetAlphaImmediately(envCharacters[index], 1f);
+            alphaStatus[envCharacters[index]] = 1;
+
+            for (int i = 0; i < envCharacters.Count; i++)
+            {
+                if (envCharacters[i].activeInHierarchy && (int)alphaStatus[envCharacters[i]] > 0 && (int)alphaStatus[envCharacters[i]] != 2) // if displayed and NOT already partially transparent
+                {
+                    if (i != index)
+                    {
+                        transitionEffects.SetAlphaImmediately(envCharacters[i], 0.3f);
+                        alphaStatus[envCharacters[i]] = 2;
+                    }
+                }
+            }
+        }
+    }
+
+    public void ResetAlpha(int _alpha) // ONLY 0 or 1
+    {
+        for (int i = 0; i < envCharacters.Count; i++)
+        {
+            if (envCharacters[i].activeInHierarchy && (int)alphaStatus[envCharacters[i]] > 0) // if displayed and NOT transparent
+            {
+                transitionEffects.SetAlphaImmediately(envCharacters[i], _alpha);
+                alphaStatus[envCharacters[i]] = _alpha; 
+            }
+        }
+    }
+
 
     private void SetDistance()
     {
@@ -230,28 +242,4 @@ public class CharacterDisplayController : MonoBehaviour
             intervalDist = 6f;
         }
     }  
-
-    //public void GetShowInput()
-    //{
-    //    string inputString = inputFieldShowObj.gameObject.GetComponent<TMPro.TMP_InputField>().text;
-    //    // Debug.Log(inputString);
-    //    int number;
-    //    bool success = int.TryParse(inputString, out number);
-    //    if(success)
-    //    {
-    //        IncreaseOneCharacter(number);
-    //    }
-    //}
-
-    //public void GetHideInput()
-    //{
-    //    string inputString = inputFieldHideObj.gameObject.GetComponent<TMPro.TMP_InputField>().text;
-    //    // Debug.Log(inputString);
-    //    int number;
-    //    bool success = int.TryParse(inputString, out number);
-    //    if (success)
-    //    {
-    //        DecreaseOneCharacter(number);
-    //    }
-    //}
 }
