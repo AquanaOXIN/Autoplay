@@ -22,4 +22,11 @@ public class AudioPreviewer : ScriptableObject
         source.outputAudioMixerGroup = audioOutput;
         source.Play();
     }
+
+    public void StopPreview(AudioSource source)
+    {
+        if (!my_audioClip)
+            return;
+        source.Stop();
+    }
 }

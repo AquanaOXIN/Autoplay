@@ -28,6 +28,10 @@ public class AudioPreviewerEditor : Editor
         {
             ((AudioPreviewer)target).PlayPreview(_previewer);
         }
+        if(GUILayout.Button("Stop Preview"))
+        {
+            ((AudioPreviewer)target).StopPreview(_previewer);
+        }
         EditorGUI.EndDisabledGroup();
     }
 }
