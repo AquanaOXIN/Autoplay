@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   my_audioClip: {fileID: 8300000, guid: 8bf471c535c10bd4490d481fd0372376, type: 3}
   audioOutput: {fileID: 24300002, guid: bce5c582ad5c2574cb0d53d445875a51, type: 2}
+  volume: 1
+  pitch: 1.25
