@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d04e56dc2f0aab48b98a433682f5125, type: 3}
   m_Name: My Audio Previewer
   m_EditorClassIdentifier: 
-  my_audioClip: {fileID: 8300000, guid: e60ac8fa2cefd8d4e8c4cbe059cc88c7, type: 3}
+  my_audioClip: {fileID: 8300000, guid: c96867f6777a7814a8683df6eca37afa, type: 3}
   audioOutput: {fileID: 24300002, guid: bce5c582ad5c2574cb0d53d445875a51, type: 2}
-  volume: 0.5
-  pitch: 1.35
+  volume: 0.02
+  pitch: 1

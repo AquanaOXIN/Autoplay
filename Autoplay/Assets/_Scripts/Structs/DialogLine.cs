@@ -16,12 +16,13 @@ public struct DialogLine
 
     // change other/self emotion part
     public int? charNum;
-    public int? emo2Change;
-    public int? when2Change;
-    public int? where2Change; // if there's already a character, then stick together
+    public int? emoSelect2;
+    public int? posSelect2;
+    public int? vfxSelect2; // if there's already a character, then stick together
+    public int? timing;
 
     public DialogLine(string _speakerName, int? _emoSelect, int? _posSelect, int? _status, int? _vfxSelect, int _speechIndex,
-        string _dialogContent, int? _charNum = null, int? _emo2Change = 0, int? _when2Change = 0, int? _where2Change = 0)
+        string _dialogContent, int? _charNum, int? _emoSelect2, int? _when2Change, int? _vfxSelect2, int? _timing = 0)
     {
         this.speakerName = _speakerName;
         this.emoSelect = _emoSelect;
@@ -32,8 +33,9 @@ public struct DialogLine
         this.dialogContent = _dialogContent;
 
         this.charNum = _charNum;
-        this.emo2Change = _emo2Change;
-        this.when2Change = _when2Change;
-        this.where2Change = _where2Change;
+        this.emoSelect2 = _emoSelect2;
+        this.posSelect2 = _when2Change;
+        this.vfxSelect2 = _vfxSelect2;
+        this.timing = _timing;
     }
 }

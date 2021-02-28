@@ -16,7 +16,9 @@ public class AutoplayManager : MonoBehaviour
     [SerializeField]
     private int currentSceneNum = default;
     [SerializeField]
-    private string KPTAG = default;
+    private string STAGETAG = default;
+    [SerializeField]
+    private string[] KPTAG = default;
     [SerializeField]
     private string ROLLTAG = default; // tag in log for rolling dice
     [SerializeField]
@@ -25,6 +27,9 @@ public class AutoplayManager : MonoBehaviour
     private string ESTAG = default; // tag in log for scene sprite
     [SerializeField]
     private string UISTAG = default; // tag in log for UI sprite
+
+    [Header("Setted Stages")]
+    private Stage[] stages = default;
 
     [Header("Characters")]
     [SerializeField]
@@ -55,6 +60,7 @@ public class AutoplayManager : MonoBehaviour
     private List<Image> nameImgs = default;
     private List<TextMeshProUGUI> nameDisplays = default;
     private Image diceImg = default;
+    private TextMeshProUGUI diceDisplay = default;
     private List<Image> characterImgs = default;
     private Image itemImg = default;
     private Image foregroundImg = default;
@@ -82,6 +88,12 @@ public class AutoplayManager : MonoBehaviour
     private Sprite[] UISprites = default;
 
     [Header("Audio Elements")]
+    [SerializeField, Range(0, 1)]
+    private float bgmVolumeCap = default;
+    [SerializeField]
+    private AudioClip[] bgmClips = default;
+    [SerializeField]
+    private AudioClip[] sfxClips = default;
     [SerializeField]
     private AudioSource voiceAudio = default;
     [SerializeField]
@@ -92,7 +104,7 @@ public class AutoplayManager : MonoBehaviour
     private AudioSource BGMAudio = default;
 
     [Header("Variables")]
-    private bool sceneSettled = false;
+    // private bool sceneSettled = false;
     [SerializeField]
     private float loadingTime = default;
     [SerializeField, Range(0f, 0.1f)]
@@ -114,16 +126,20 @@ public class AutoplayManager : MonoBehaviour
     private ArrayList procdLines = default;
     private bool lineComplete = false;
     private Hashtable speechSeqCounter = default;
+    private Hashtable UICharPositionStatus = default;
+    private Hashtable envCharPositionStatus = default;
 
     // KP Specials
-    private Characters theKP = default;
+    [SerializeField]
+    private List<Characters> theKPs = default;
 
     // Formatting Params
     private int bgInParamNum = 3;
     private int uisInParamNum = 4;
     private int esInParamNum = 4;
-    private int rollInParamNum = 4;
-    private int dialogInParamNum = 8;
+    private int rollInParamNum = 6;
+    private int dialogInParamNum = 9;
+    private int stageInParamNum = 2;
 
     // Character Display Controls
     private CharacterDisplayController characterDisplayControls = default;
@@ -155,14 +171,18 @@ public class AutoplayManager : MonoBehaviour
         }
 
         characterImgs = new List<Image>();
+        UICharPositionStatus = new Hashtable();
         foreach (GameObject go in characterUIs)
         {
+            UICharPositionStatus.Add(go, (int)0);
             Image img = go.GetComponent<Image>();
             characterImgs.Add(img);
             go.SetActive(false);
         }
 
         diceImg = diceUI.GetComponent<Image>();
+        diceDisplay = diceUI.GetComponentInChildren<TextMeshProUGUI>();
+        diceDisplay.text = "";
         diceUI.SetActive(false);
 
         itemImg = itemUI.GetComponent<Image>();
@@ -172,11 +192,13 @@ public class AutoplayManager : MonoBehaviour
 
         // Initialize Environment Components
         envBGSR = envBackground.GetComponentInChildren<SpriteRenderer>();
-        envBackground.SetActive(false);
+        envBackground.SetActive(true);
 
         envCharacterSRs = new List<SpriteRenderer>();
+        envCharPositionStatus = new Hashtable();
         foreach (GameObject go in envCharacters)
         {
+            envCharPositionStatus.Add(go, (int)0);
             SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
             envCharacterSRs.Add(sr);
             go.SetActive(false);
@@ -215,7 +237,9 @@ public class AutoplayManager : MonoBehaviour
             speechSeqCounter.Add(c.tagName, (int)0);
         }
 
-        sceneSettled = false;
+        theKPs = new List<Characters>();
+
+        // sceneSettled = false;
         StartCoroutine(LoadingScene());
     }
 
@@ -250,7 +274,13 @@ public class AutoplayManager : MonoBehaviour
     {
         ProcessLog(txt);
 
-        dialogueUI.SetActive(true);
+        // should be changed
+        //dialogueUI.SetActive(true);
+        //foreach(GameObject go in nameUIs)
+        //{
+        //    go.SetActive(true);
+        //}
+
         dialogDisplay.text = "";
         foreach(TextMeshProUGUI textPro in nameDisplays)
         {
@@ -267,10 +297,11 @@ public class AutoplayManager : MonoBehaviour
         // Process raw lines
         string rawLineFormat = @"^\[\S+\]\:\[\S+\].*";
         string bgLineFormat = @".*\|.*\|.*";
-        string ssLineFormat = @".*\|.*\|.*\|.*";
+        string esLineFormat = @".*\|.*\|.*\|.*";
         string uisLineFormat = @".*\|.*\|.*\|.*";
         string rolLineFormat = @".*\|.*\|.*\|.*";
         string dialogLineFormat = @".*\|.*\|.*\|.*\|.*\|.*\|.*\|.*";
+        string stageLineFormat = @".*|.*";
 
         string splitPattern0 = @"^\[";
         string splitPattern1 = @"\]\:";
@@ -338,9 +369,33 @@ public class AutoplayManager : MonoBehaviour
                         break;
                     }
                 }
+                else if (tmpTag == STAGETAG)
+                {
+                    Match _m = Regex.Match(segdLine3[0], stageLineFormat);
+                    if(_m.Length > 0)
+                    {
+                        string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
+                        int?[] intParams = new int?[stageInParamNum];
+                        int counter = 0;
+                        while (counter < intParams.Length)
+                        {
+                            intParams[counter] = ToNullableInt(in_params[counter]);
+                            counter++;
+                        }
+                        STAGELine _line = new STAGELine(STAGETAG, intParams[0], intParams[1]);
+                        lineTagSeq.Add(tmpTag);
+                        lineDialogSeq.Add("");
+                        procdLines.Add(_line);
+                    }
+                    else
+                    {
+                        Debug.Log("Format Error @ line " + i.ToString());
+                        break;
+                    }
+                }
                 else if (tmpTag == ESTAG)
                 {
-                    Match _m = Regex.Match(segdLine3[0], ssLineFormat);
+                    Match _m = Regex.Match(segdLine3[0], esLineFormat);
                     if (_m.Length > 0)
                     {
                         string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
@@ -402,7 +457,7 @@ public class AutoplayManager : MonoBehaviour
                             intParams[counter] = ToNullableInt(in_params[counter]);
                             counter++;
                         }
-                        ROLLine _line = new ROLLine(ROLLTAG, intParams[0], intParams[1], intParams[2], intParams[3], tmpDialog);
+                        ROLLine _line = new ROLLine(ROLLTAG, intParams[0], intParams[1], intParams[2], intParams[3], intParams[4], intParams[5], tmpDialog);
                         lineTagSeq.Add(tmpTag);
                         lineDialogSeq.Add(tmpDialog);
                         procdLines.Add(_line);
@@ -436,7 +491,7 @@ public class AutoplayManager : MonoBehaviour
                                 }
 
                                 DialogLine _line = new DialogLine(c.tagName, intParams[0], intParams[1], intParams[2], intParams[3], seqCounter, tmpDialog,
-                                    intParams[4], intParams[5], intParams[6], intParams[7]);
+                                    intParams[4], intParams[5], intParams[6], intParams[7], intParams[8]);
                                 lineTagSeq.Add(tmpTag);
                                 lineDialogSeq.Add(tmpDialog);
                                 procdLines.Add(_line);
@@ -469,162 +524,163 @@ public class AutoplayManager : MonoBehaviour
 
         if (currTag == BGTAG)
         {
-            readingSpeed = 0.5f;
-
+            readingSpeed = 1f;
             BGLine currLine = (BGLine)procdLines[progIndex];
-            
-            if (currLine.spriteSelect != null)
+            if(currLine.spriteSelect != null)
             {
-                // can be changed in other ways
+                if(!envBackground.activeInHierarchy)
+                {
+                    envBackground.SetActive(true);
+                }
+                if(envBGSR.sprite)
+                {
+                    StartCoroutine(transitionEffects.FadeOut(envBackground, 0.5f));
+                    yield return new WaitForSeconds(0.51f);
+                }
                 envBGSR.sprite = BackgroundSprites[(int)currLine.spriteSelect];
+                StartCoroutine(transitionEffects.FadeIn(envBackground, 0.5f));
             }
             else
             {
-                // show default background
-                envBGSR.sprite = BackgroundSprites[0];
-            }
-
-            if(currLine.status != null)
-            {
-                // Moving-in or Moving-out? Moving should change the envBackground Gameobject
-            }
-
-            if(currLine.vfxSelect != null)
-            {
-                // ... with which kind of VFX?
-                if (currLine.vfxSelect == 0)
-                {
-                    StartCoroutine(transitionEffects.UIFadeIn(foregroundUI, 0.3f));
-                    
-                }
-                else if (currLine.vfxSelect == 1)
-                {
-                    StartCoroutine(transitionEffects.UIFadeOut(foregroundUI, 0.3f));
-                    
-                }
+                Debug.Log("BGTAG: No background sprite selected!");
             }
             
         }
+        else if (currTag == STAGETAG)
+        {
+            readingSpeed = 4f;
+            STAGELine currLine = (STAGELine)procdLines[progIndex];
+            if(currLine.stageSelect != null)
+            {
+                // Audio
+                if (BGMAudio.clip != null)
+                {
+                    StartCoroutine(transitionEffects.AudioFadeOut(BGMAudio, 2f));
+                    yield return new WaitForSeconds(2.01f);
+                    BGMAudio.Stop();
+                }
+                if(stages[(int)currLine.stageSelect].backgroundMusic)
+                {
+                    BGMAudio.clip = stages[(int)currLine.stageSelect].backgroundMusic;
+                }
+                else
+                {
+                    BGMAudio.clip = bgmClips[0];
+                }
+                
+                StartCoroutine(transitionEffects.AudioFadeIn(BGMAudio, 5f, bgmVolumeCap));
+                BGMAudio.Play();
+
+                // Background
+                if(!envBackground.activeInHierarchy)
+                {
+                    envBackground.SetActive(true);
+                }
+                if (envBGSR.sprite != null)
+                {
+                    StartCoroutine(transitionEffects.FadeOut(envBackground, 1f));
+                    yield return new WaitForSeconds(1.01f);
+
+                }
+                if (stages[(int)currLine.stageSelect].backgroundSprite)
+                {
+                    envBGSR.sprite = stages[(int)currLine.stageSelect].backgroundSprite;
+                }
+                else
+                {
+                    envBGSR.sprite = BackgroundSprites[0];
+                }
+                StartCoroutine(transitionEffects.FadeIn(envBackground, 2f));
+            }
+            else
+            {
+                Debug.Log("STAGETAG: No stage selected!");
+            }
+        }
+
         else if (currTag == ESTAG)
         {
             readingSpeed = 1f;
-
-            Sprite sprite2Show = default;
             ESLine currLine = (ESLine)procdLines[progIndex];
-            if(currLine.spriteSelect != null)
-            {
-                sprite2Show = envSprites[(int)currLine.spriteSelect];
-            }
-
-            if(currLine.posSelect != null)
-            {
-                envItemSRs[(int)currLine.posSelect].sprite = sprite2Show;
-            }
-
-            if(currLine.status != null)
-            {
-
-            }
-
-            if(currLine.vfxSelect != null)
-            {
-
-            }
+            
+            // Dev...
         }
         else if (currTag == UISTAG)
-        {
+        {          
             readingSpeed = 0.5f;
-            Sprite sprite2Show = default;
             UISLine currLine = (UISLine)procdLines[progIndex];
 
-            if (currLine.status == 1)
+            if(currLine.spriteSelect!= null)
             {
-                if (currLine.spriteSelect != null)
-                {
-                    itemUI.SetActive(true);
-                    sprite2Show = UISprites[(int)currLine.spriteSelect];
-                    itemImg.sprite = sprite2Show;
-                    itemImg.SetNativeSize();
-                }
-                
-            }
-            else if (currLine.status == 0)
-            {
-                itemUI.SetActive(false);
-            }
-            else
-            {
-                sprite2Show = null;
-                itemImg.sprite = sprite2Show;
-                itemUI.SetActive(false);
-            }
-            //if (currLine.posSelect != null)
-            //{
-            //    itemImg.sprite = sprite2Show;
-            //    itemImg.SetNativeSize();
-            //}
-            //else
-            //{
-            //    // default Image UI
-            //    itemImg.sprite = sprite2Show;
-            //    itemImg.SetNativeSize();
-            //}
-
-            if (currLine.vfxSelect != null)
-            {
-
+                itemImg.sprite = UISprites[(int)currLine.spriteSelect];
+                itemImg.SetNativeSize();
             }
 
+            if(currLine.status == 1)
+            {
+                dialogueUI.SetActive(false);
+                StartCoroutine(transitionEffects.UIFadeIn(itemUI, 0.45f));                        
+                itemUI.SetActive(true);
+            }
+            else if(currLine.status == 0)
+            {
+                StartCoroutine(transitionEffects.UIFadeOut(itemUI, 0.3f));
+                StartCoroutine(DelayedSetActive(itemUI, false, 0.31f));
+            }       
         }
         else if (currTag == ROLLTAG)
         {
-            readingSpeed = 3f;
-            Sprite sprite2Show = default;
             ROLLine currLine = (ROLLine)procdLines[progIndex];
+            readingSpeed = 2f * (currLine.dialogContent.ToCharArray().Length) / 10f;
 
+            Sprite _dialogSprite = default;
             if (currLine.diceSelect != null)
             {
-                sprite2Show = dice[(int)currLine.diceSelect].dieSprite;
+                diceImg.sprite = dice[(int)currLine.diceSelect].dieSprite;
+                _dialogSprite = dice[(int)currLine.diceSelect].dialogBGSprite;
+                diceImg.SetNativeSize();
             }
             else
             {
-                // show default die
-                sprite2Show = dice[0].dieSprite;
+                diceImg.sprite = dice[0].dieSprite;
+                _dialogSprite = dice[0].dialogBGSprite;
+                diceImg.SetNativeSize();
             }
+            dialogImg.sprite = _dialogSprite;
 
-            if (currLine.posSelect != null)
+            if (!dialogueUI.activeInHierarchy)
             {
-                diceImg.sprite = sprite2Show;
-                diceImg.SetNativeSize();
+                dialogueUI.SetActive(true);
             }
-            else
-            {
-                diceImg.sprite = sprite2Show;
-                diceImg.SetNativeSize();
-            }
+            // Add LeanTween Effects...
+
             
-
+            // should be changed 
+            StartCoroutine(transitionEffects.UIFadeIn(diceUI, 0.15f));
+            diceUI.SetActive(true);
+     
             if (currLine.sfxSelect != null)
             {
                 SFXAudio.clip = dice[(int)currLine.diceSelect].rollDiceSFX[(int)currLine.sfxSelect];
-                SFXAudio.PlayDelayed(0.5f);
+                SFXAudio.PlayDelayed(0.25f);
             }
             else
             {
                 SFXAudio.clip = dice[0].rollDiceSFX[0];
-                SFXAudio.PlayDelayed(0.5f);
+                SFXAudio.PlayDelayed(0.25f);
             }
-
-            if (currLine.vfxSelect != null)
-            {
-
-            }
-            else
-            {
-
-            }
-
             StartCoroutine(TypingDialogue(dialogDisplay, currLine.dialogContent, typingSpeed));
+
+            yield return new WaitForSeconds(0.25f);
+            if(currLine.result != null)
+            {
+                diceDisplay.text = currLine.result.ToString();
+            }
+
+            yield return new WaitForSeconds(readingSpeed - 0.3f);
+            StartCoroutine(transitionEffects.UIFadeOut(diceUI, 0.1f));
+            diceUI.SetActive(false);
+            diceDisplay.text = "";
         }
         else // Character TAG situation ...
         {
@@ -632,147 +688,237 @@ public class AutoplayManager : MonoBehaviour
             {
                 if(currTag == c.tagName)
                 {
+                    if(c.GetCurrentPosition() != 999) // if haven't in scene, wait for VFX to pull up the UIs
+                    {
+                        if (!dialogueUI.activeInHierarchy)
+                        {
+                            dialogueUI.SetActive(true);
+                        }
+                        if (!nameUIs[c.nameDisplayPosition].activeInHierarchy)
+                        {
+                            nameUIs[c.nameDisplayPosition].SetActive(true);
+                        }
+                    }
+                    else
+                    {
+                        dialogueUI.SetActive(false);
+                        nameUIs[c.nameDisplayPosition].SetActive(false);
+                    }
                     dialogImg.sprite = c.dialogBGSprite;
 
                     DialogLine currLine = (DialogLine)procdLines[progIndex];
-                    if (!KP_as_PC && currTag == KPTAG)
-                    {
-                        // KP line 
-                        // Assign our the most special KP
-                        if(theKP == null)
-                        {
-                            theKP = c;
-                        }
 
-                        if (currLine.status == 1) // character in
-                        {
-                            if (currLine.emoSelect != null && currLine.posSelect != null)
-                            {
-                                characterImgs[(int)currLine.posSelect].sprite = c.emotionSprites[(int)currLine.emoSelect];
-                                c.SetCurrentPosition((int)currLine.posSelect);
-                                characterImgs[theKP.GetCurrentPosition()].SetNativeSize();
-                            }
-                            else if (currLine.emoSelect != null && currLine.posSelect == null)
-                            {
-                                characterImgs[0].sprite = c.emotionSprites[(int)currLine.emoSelect];
-                                c.SetCurrentPosition(0);
-                                characterImgs[theKP.GetCurrentPosition()].SetNativeSize();
-                            }
-                            else if (currLine.emoSelect == null && currLine.posSelect != null)
-                            {
-                                characterImgs[(int)currLine.posSelect].sprite = c.emotionSprites[1];
-                                c.SetCurrentPosition((int)currLine.posSelect);
-                                characterImgs[theKP.GetCurrentPosition()].SetNativeSize();
-                            }
-                            else
-                            {
-                                characterImgs[0].sprite = c.emotionSprites[1];
-                                c.SetCurrentPosition(0);
-                                characterImgs[theKP.GetCurrentPosition()].SetNativeSize();
-                            }
-                        }
-                        else if (currLine.status == 2) // character leave
-                        {
-                            if (c.GetCurrentPosition() != 999)
-                            {
-                                characterImgs[c.GetCurrentPosition()].sprite = null;
-                            }
-                        }
-                        else
-                        {
-                            // should be changed
-                            characterImgs[0].sprite = c.emotionSprites[1];
-                            c.SetCurrentPosition(0);
-                            characterImgs[theKP.GetCurrentPosition()].SetNativeSize();
-                        }
-                    }
-                    else
-                    {
-                        // Regular PC line
-                        if(theKP)
-                        {
-                            if (theKP.GetCurrentPosition() != 999)
-                            {
-                                characterImgs[theKP.GetCurrentPosition()].sprite = theKP.emotionSprites[0];
-                                characterImgs[theKP.GetCurrentPosition()].SetNativeSize();
-                            }
-                        }
+                    int? _status = currLine.status;
 
-                        //characterImgs[0].sprite = characters[0].emotionSprites[0];
-                        // should be changed 
-                        nameDisplays[0].text = c.displayName.ToString();
-                        if(currLine.status != null || currLine.status != 0)
+                    foreach (string tag in KPTAG)
+                    {
+                        // determine if KP
+                        if(currTag == tag)
                         {
-                            if(currLine.status == 1) // character in
+                            bool knownKP = false;
+                            foreach(Characters kp in theKPs)
                             {
-                                if(currLine.emoSelect != null && currLine.posSelect != null)
+                                if (kp.tagName == currTag)
+                                    knownKP = true;
+                            }
+                            if(!knownKP)
+                            {
+                                theKPs.Add(c);
+                            }
+
+                            if (!KP_as_PC)
+                            {
+                                // KP line 
+                                Sprite sprite2Display = default;
+
+                                // emoSelect
+                                if(currLine.emoSelect != null)
                                 {
-                                    envCharacterSRs[(int)currLine.posSelect].sprite = c.emotionSprites[(int)currLine.emoSelect];
-                                    c.SetCurrentPosition((int)currLine.posSelect);
-                                }
-                                else if(currLine.emoSelect != null && currLine.posSelect == null)
-                                {
-                                    envCharacterSRs[0].sprite = c.emotionSprites[(int)currLine.emoSelect];
-                                    c.SetCurrentPosition(0);
-                                }
-                                else if (currLine.emoSelect == null && currLine.posSelect != null)
-                                {
-                                    envCharacterSRs[(int)currLine.posSelect].sprite = c.emotionSprites[0];
-                                    c.SetCurrentPosition((int)currLine.posSelect);
+                                    sprite2Display = c.emotionSprites[(int)currLine.emoSelect];
                                 }
                                 else
                                 {
-                                    envCharacterSRs[0].sprite = c.emotionSprites[0];
-                                    c.SetCurrentPosition(0);
+                                    //if(c.GetCurrentPosition() == 999) // if not displayed, then select a sprite to display
+                                    //{
+                                    sprite2Display = c.emotionSprites[1];
+                                    // Debug.Log("Displayed");
+                                    //}
                                 }
-                            }
-                            else if(currLine.status == 2) // character leave
-                            {
-                               if(c.GetCurrentPosition()!= 999)
+
+                                // posSelect
+                                if(currLine.posSelect != null)
                                 {
-                                    envCharacterSRs[c.GetCurrentPosition()].sprite = null;
+                                    if((int)UICharPositionStatus[characterUIs[(int)currLine.posSelect]] == 0)
+                                    {
+                                        c.SetCurrentPosition((int)currLine.posSelect);
+                                        characterImgs[(int)currLine.posSelect].sprite = sprite2Display;
+                                        characterImgs[(int)currLine.posSelect].SetNativeSize();
+                                        UICharPositionStatus[characterUIs[(int)currLine.posSelect]] = (int)1;
+                                    }
+                                }
+                                else
+                                {
+                                    if(c.GetCurrentPosition() == 999)
+                                    {
+                                        for (int i = 0; i < characterUIs.Length; i++)
+                                        {
+                                            if ((int)UICharPositionStatus[characterUIs[i]] == 0)
+                                            {
+                                                c.SetCurrentPosition(i);
+                                                characterImgs[i].sprite = sprite2Display;
+                                                characterImgs[i].SetNativeSize();
+                                                UICharPositionStatus[characterUIs[i]] = (int)1;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        characterImgs[c.GetCurrentPosition()].sprite = sprite2Display;
+                                        characterImgs[c.GetCurrentPosition()].SetNativeSize();
+                                    }
+                                }
+                                
+                                if(_status == 1)
+                                {
+                                    StartCoroutine(transitionEffects.UIFadeIn(characterUIs[c.GetCurrentPosition()], 1f));
+                                    characterUIs[c.GetCurrentPosition()].SetActive(true);
+                                    dialogueUI.SetActive(true);
+                                    // Add LeanTween ...
+                                }
+                                else if (_status == null)
+                                {
+
+                                }
+
+                                voiceAudio.clip = c.GetClip(currLine.speechIndex);
+                                if (voiceAudio.clip.length > 0)
+                                {
+                                    readingSpeed = voiceAudio.clip.length + 0.18f;
+                                }
+                                else
+                                {
+                                    readingSpeed = 2.0f;
+                                }
+                                voiceMixer.SetFloat("Pitch", c.mixerPitch);
+                                voiceAudio.PlayDelayed(0.15f);
+
+                                StartCoroutine(TypingDialogue(dialogDisplay, currLine.dialogContent, typingSpeed));
+
+                                yield return new WaitForSeconds(readingSpeed);
+                                if(_status == 0)
+                                {
+                                    StartCoroutine(transitionEffects.UIFadeOut(characterUIs[c.GetCurrentPosition()], 1f));
+                                    StartCoroutine(DelayedSetActive(characterUIs[c.GetCurrentPosition()], false, 1.1f));
+                                    c.SetCurrentPosition(999);
+                                    dialogueUI.SetActive(false); // should be LeanTween VFX
+                                    yield return new WaitForSeconds(1f);
+                                }
+                                lineComplete = true;
+                            }     
+                        }
+                        else
+                        {
+                            // Regular PC line
+                            Sprite sprite2Display = default;
+                            nameDisplays[c.nameDisplayPosition].text = c.displayName.ToString();
+
+                            // KP stand-by
+                            foreach(Characters kp in theKPs)
+                            {
+                                if(kp.GetCurrentPosition() != 999)
+                                {
+                                    characterImgs[kp.GetCurrentPosition()].sprite = kp.emotionSprites[0];
+                                    characterImgs[kp.GetCurrentPosition()].SetNativeSize();
                                 }
                             }
-                            else if(currLine.emoSelect != null)
+
+                            // emoSelect
+                            if (currLine.emoSelect != null)
                             {
-                                envCharacterSRs[0].sprite = c.emotionSprites[(int)currLine.emoSelect];
+                                sprite2Display = c.emotionSprites[(int)currLine.emoSelect];
                             }
                             else
                             {
-                                // should be changed
-                                if(c.emotionSprites.Length > 0)
+                                if (c.GetCurrentPosition() == 999) // if not displayed, then select a sprite to display
                                 {
-                                    envCharacterSRs[0].sprite = c.emotionSprites[0];
-                                }                              
+                                    sprite2Display = c.emotionSprites[0];
+                                }
                             }
 
-                        }
-                    }
-                    voiceAudio.clip = c.GetClip(currLine.speechIndex);
-                    if (voiceAudio.clip.length > 0)
-                    {
-                        readingSpeed = voiceAudio.clip.length + 0.6f;
-                    }
-                    else
-                    {
-                        readingSpeed = 2.0f;
-                    }
-                    voiceMixer.SetFloat("Pitch", c.mixerPitch);
-                    voiceAudio.PlayDelayed(0.5f);
+                            // posSelect
+                            if (currLine.posSelect != null) // move character position?
+                            {
+                                if(c.GetCurrentPosition() == 999)
+                                {
+                                    if((int)envCharPositionStatus[envCharacters[(int)currLine.posSelect]] == 1)
+                                    {
+                                        Debug.Log("Wrong Position: Position occupied!");
+                                    }
+                                    else
+                                    {
+                                        // Continue work here: vacant position, set character position, add Y offset to character scriptable object
+                                    }
+                                }
+                                //characterDisplayControls.MoveCharacterPosition(c.GetCurrentPosition(), (int)currLine.posSelect);
 
-                    StartCoroutine(TypingDialogue(dialogDisplay, currLine.dialogContent, typingSpeed));
+                                //c.SetCurrentPosition((int)currLine.posSelect);
+                                //envCharacterSRs[(int)currLine.posSelect].sprite = sprite2Display;                               
+                                //envCharPositionStatus[envCharacters[(int)currLine.posSelect]] = (int)1;
+                            }
+                            else
+                            {
+                                if (c.GetCurrentPosition() == 999)
+                                {
+                                    for (int i = 0; i < envCharacters.Length; i++)
+                                    {
+                                        if ((int)envCharPositionStatus[envCharacters[i]] == 0)
+                                        {
+                                            c.SetCurrentPosition(i);
+                                            envCharacterSRs[i].sprite = c.emotionSprites[0];
+                                            envCharPositionStatus[envCharacters[i]] = (int)1;
+                                            characterDisplayControls.IncreaseOneCharacter(i);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+
+                            if (c.GetCurrentPosition() != 999)
+                            {
+                                characterDisplayControls.CharacterSpeaking(c.GetCurrentPosition());
+                            }
+                           
+                            // ==================================================
+
+                            voiceAudio.clip = c.GetClip(currLine.speechIndex);
+                            if (voiceAudio.clip.length > 0)
+                            {
+                                readingSpeed = voiceAudio.clip.length + 0.52f;
+                            }
+                            else
+                            {
+                                readingSpeed = 2.0f;
+                            }
+                            voiceMixer.SetFloat("Pitch", c.mixerPitch);
+                            voiceAudio.PlayDelayed(0.5f);
+
+                            StartCoroutine(TypingDialogue(dialogDisplay, currLine.dialogContent, typingSpeed));
+
+                            yield return new WaitForSeconds(readingSpeed);
+                            lineComplete = true;
+                        }
+                    }  
                 }
             }
         }
-
-        yield return new WaitForSeconds(readingSpeed);
-        lineComplete = true;
     }
 
     private void NextLine()
     {
         lineComplete = false;
-        if (progIndex < procdLines.Count)
+        if (progIndex < procdLines.Count - 1)
         {
             progIndex++;
             // yield return new WaitForSeconds(readingSpeed);
@@ -781,6 +927,7 @@ public class AutoplayManager : MonoBehaviour
             {
                 textPro.text = "";
             }
+            diceDisplay.text = "";
             StartCoroutine(ExecutingLine());
         }
         else
@@ -791,6 +938,7 @@ public class AutoplayManager : MonoBehaviour
             {
                 textPro.text = "";
             }
+            diceDisplay.text = "";
             lineComplete = false;
             dialogueUI.SetActive(false);
             progIndex = 0;
@@ -799,8 +947,10 @@ public class AutoplayManager : MonoBehaviour
             lineTagSeq = new List<string>();
             procdLines = new ArrayList();
             speechSeqCounter = new Hashtable();
-            sceneSettled = false;
+            envCharPositionStatus = new Hashtable();
+            // sceneSettled = false;
             // Other lists ...
+            theKPs = new List<Characters>();
         }
     }
 
@@ -817,51 +967,6 @@ public class AutoplayManager : MonoBehaviour
         {
             _textDisplay.text += letter;
             yield return new WaitForSeconds(_typingSpeed);
-        }
-    }
-
-    /// Visual Effects
-
-    private IEnumerator BlackIn(GameObject go, float duration)
-    {
-        float t = 0;
-        float startAlpha = go.GetComponent<CanvasRenderer>().GetAlpha();
-
-        while (t < duration)
-        {
-            go.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(startAlpha, 0f, t / duration));
-
-            t += Time.deltaTime;
-            yield return null;
-        }
-    }
-    private IEnumerator BlackOut(GameObject go, float duration)
-    {
-        float t = 0;
-        float startAlpha = go.GetComponent<CanvasRenderer>().GetAlpha();
-
-        while (t < duration)
-        {
-            go.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(startAlpha, 1f, t / duration));
-
-            t += Time.deltaTime;
-            yield return null;
-        }
-    }
-
-    private IEnumerator NoiseTVEffect(GameObject go, float duration)
-    {
-        float t = 0;
-        float startEdge = 0.25f;
-        float endEdge = 0f;
-        go.GetComponent<Image>().material.SetFloat("Step Edge", startEdge);
-
-        while (t < duration)
-        {
-            go.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(startEdge, endEdge, t / duration));
-
-            t += Time.deltaTime;
-            yield return null;
         }
     }
 

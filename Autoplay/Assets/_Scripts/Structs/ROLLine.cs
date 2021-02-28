@@ -3,6 +3,8 @@
 public struct ROLLine
 {
     public string tagName;
+    public int? rollerNum;
+    public int? result;
     public int? diceSelect;
     public int? posSelect;
     public int? sfxSelect; // extraSuccess, success, fail, extraFail,etc => to determine SFX
@@ -10,9 +12,11 @@ public struct ROLLine
 
     public string dialogContent;
 
-    public ROLLine(string _tagName, int? _diceSelect, int? _posSelect, int? _sfxSelect, int? _vfxSelect, string _dialogContent)
+    public ROLLine(string _tagName, int? _rollerNum, int? _result, int? _diceSelect, int? _posSelect, int? _sfxSelect, int? _vfxSelect, string _dialogContent)
     {
         this.tagName = _tagName;
+        this.rollerNum = _rollerNum;
+        this.result = _result;
         this.diceSelect = _diceSelect;
         this.posSelect = _posSelect;
         this.sfxSelect = _sfxSelect;      

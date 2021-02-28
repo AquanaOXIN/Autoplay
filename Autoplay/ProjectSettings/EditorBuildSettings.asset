@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/DemoAutoPlay0.unity
     guid: 7efd64959db157742a57fdd41bb2b0bc
+  - enabled: 1
+    path: Assets/_Scenes/DemoAutoPlay1.unity
+    guid: f7ee00cacd9acf94684c09f00ea65cc1
   m_configObjects: {}

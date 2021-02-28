@@ -10,6 +10,7 @@ public class Characters : ScriptableObject
     public string displayName = default;
     public string fullName = default;
     public string[] nameInOtherLanguage = default;
+    public int nameDisplayPosition = default;
 
     [Header("Related Images")]
     public Sprite dialogBGSprite = default;
@@ -25,7 +26,14 @@ public class Characters : ScriptableObject
     public float mixerPitch = default;
 
     private AudioClip[] voiceClips = default;
+    [SerializeField]
+    private int defaultPosition = 999;
     private int currentPosition = 999;
+
+    private void OnEnable()
+    {
+        currentPosition = defaultPosition;
+    }
 
     public void LoadVoiceAudioFiles(int currentSceneNum)
     {

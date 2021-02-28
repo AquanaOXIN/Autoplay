@@ -13,6 +13,7 @@ public class Dice : ScriptableObject
 
     [Header("Related Images")]
     public Sprite dieSprite = default;
+    public Sprite dialogBGSprite = default;
 
     [Header("Sound Effects")]
     public AudioClip[] rollDiceSFX = default;

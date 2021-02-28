@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TransitionEffectsController : MonoBehaviour
 {
@@ -8,7 +9,8 @@ public class TransitionEffectsController : MonoBehaviour
     public IEnumerator UIFadeIn(GameObject go, float duration)
     {
         float t = 0;
-        float startAlpha = go.GetComponent<CanvasRenderer>().GetAlpha();
+        // float startAlpha = go.GetComponent<CanvasRenderer>().GetAlpha();
+        float startAlpha = 0f;
 
         while (t < duration)
         {
@@ -22,7 +24,8 @@ public class TransitionEffectsController : MonoBehaviour
     public IEnumerator UIFadeOut(GameObject go, float duration)
     {
         float t = 0;
-        float startAlpha = go.GetComponent<CanvasRenderer>().GetAlpha();
+        // float startAlpha = go.GetComponent<CanvasRenderer>().GetAlpha();
+        float startAlpha = 1f;
 
         while (t < duration)
         {
@@ -75,5 +78,63 @@ public class TransitionEffectsController : MonoBehaviour
     public void ResetSpriteRenderer(GameObject go)
     {
         go.GetComponent<SpriteRenderer>().sprite = null;
+    }
+
+    // Audio Transitions
+    public IEnumerator AudioFadeIn(AudioSource source, float duration, float volumeCap)
+    {
+        float t = 0;
+        source.volume = 0f;
+
+        while (t < duration)
+        {
+            if(source.volume < volumeCap)
+            {
+                source.volume += volumeCap / (duration / Time.deltaTime);
+            }
+            else
+            {
+                source.volume = volumeCap;
+            }
+            t += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    public IEnumerator AudioFadeOut(AudioSource source, float duration)
+    {
+        float t = 0;
+        float startVolume = source.volume;
+
+        while (t < duration)
+        {
+            if (source.volume > 0)
+            {
+                source.volume -= startVolume / (duration / Time.deltaTime);
+            }
+            else
+            {
+                source.volume = 0;
+            }
+            t += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    /// Visual Effects
+    private IEnumerator NoiseTVEffect(GameObject go, float duration)
+    {
+        float t = 0;
+        float startEdge = 0.25f;
+        float endEdge = 0f;
+        go.GetComponent<Image>().material.SetFloat("Step Edge", startEdge);
+
+        while (t < duration)
+        {
+            go.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Lerp(startEdge, endEdge, t / duration));
+
+            t += Time.deltaTime;
+            yield return null;
+        }
     }
 }
