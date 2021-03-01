@@ -47,7 +47,7 @@ public class UIController : MonoBehaviour
                 // StartCoroutine(DelayedResetUIPosition(_go, defaultPosition, 1.1f));
                 break;
             case SlideType.toButtom:
-                LeanTween.moveLocalY(_go, ogY + distY, 1f).setEase(_easeType);
+                LeanTween.moveLocalY(_go, ogY - distY, 1f).setEase(_easeType);
                 // StartCoroutine(DelayedResetUIPosition(_go, defaultPosition, 1.1f));
                 break;
             default:

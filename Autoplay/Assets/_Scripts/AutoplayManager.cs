@@ -29,6 +29,7 @@ public class AutoplayManager : MonoBehaviour
     private string UISTAG = default; // tag in log for UI sprite
 
     [Header("Setted Stages")]
+    [SerializeField]
     private Stage[] stages = default;
 
     [Header("Characters")]
@@ -595,6 +596,8 @@ public class AutoplayManager : MonoBehaviour
                 }
                 if (envBGSR.sprite != null)
                 {
+                    characterDisplayControls.ResetAlpha(1);
+                    characterDisplayControls.UpdateCharacterPositions();
                     StartCoroutine(transitionEffects.UIFadeIn(foregroundUI, 1f));
                     StartCoroutine(transitionEffects.FadeOut(envBackground, 1f));
                     yield return new WaitForSeconds(1.01f);
@@ -738,144 +741,34 @@ public class AutoplayManager : MonoBehaviour
 
                     int? _status = currLine.status;
 
+                    bool isKP = false;
                     foreach (string tag in KPTAG)
                     {
                         // determine if KP
-                        if(currTag == tag)
+                        if (currTag == tag)
                         {
+                            isKP = true;
                             bool knownKP = false;
-                            foreach(Characters kp in theKPs)
+                            foreach (Characters kp in theKPs)
                             {
                                 if (kp.tagName == currTag)
                                     knownKP = true;
                             }
-                            if(!knownKP)
+                            if (!knownKP)
                             {
-                                theKPs.Add(c);
+                                theKPs.Add(c); // initialize kp list
                             }
+                            break;
+                        }                       
+                    }
 
-                            if (!KP_as_PC)
-                            {
-                                // KP line 
-                                Sprite sprite2Display = default;
-
-                                // emoSelect
-                                if(currLine.emoSelect != null)
-                                {
-                                    sprite2Display = c.emotionSprites[(int)currLine.emoSelect];
-                                }
-                                else
-                                {
-                                    if (c.GetCurrentPosition() == 999) // if not displayed, then select a sprite to display
-                                    {
-                                        sprite2Display = c.emotionSprites[1];
-                                    }
-                                    else
-                                    {
-                                        // sprite2Display = characterImgs[c.GetCurrentPosition()].sprite;
-                                        sprite2Display = c.emotionSprites[1];
-                                    }
-                                }
-
-                                // posSelect
-                                if(currLine.posSelect != null)
-                                {
-                                    if((int)UICharPositionStatus[characterUIs[(int)currLine.posSelect]] == 0)
-                                    {
-                                        c.SetCurrentPosition((int)currLine.posSelect);
-                                        characterImgs[(int)currLine.posSelect].sprite = sprite2Display;
-                                        characterImgs[(int)currLine.posSelect].SetNativeSize();
-                                        UICharPositionStatus[characterUIs[(int)currLine.posSelect]] = (int)1;
-                                    }
-                                }
-                                else
-                                {
-                                    if(c.GetCurrentPosition() == 999)
-                                    {
-                                        for (int i = 0; i < characterUIs.Length; i++)
-                                        {
-                                            if ((int)UICharPositionStatus[characterUIs[i]] == 0)
-                                            {
-                                                c.SetCurrentPosition(i);
-                                                characterImgs[i].sprite = sprite2Display;
-                                                characterImgs[i].SetNativeSize();
-                                                UICharPositionStatus[characterUIs[i]] = (int)1;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        characterImgs[c.GetCurrentPosition()].sprite = sprite2Display;
-                                        characterImgs[c.GetCurrentPosition()].SetNativeSize();
-                                    }
-                                }
-                                
-                                if(_status == 1)
-                                {
-                                    StartCoroutine(transitionEffects.UIFadeIn(characterUIs[c.GetCurrentPosition()], 1f));
-                                    characterUIs[c.GetCurrentPosition()].SetActive(true);
-                                    // dialogueUI.SetActive(true);
-                                    // Add LeanTween ...
-                                    UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
-                                    UIControls.UISlide(characterUIs[c.GetCurrentPosition()], mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeInBounce);
-                                    StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
-                                    StartCoroutine(DelayedSetActive(characterUIs[c.GetCurrentPosition()], true, 0.1f));
-                                    yield return new WaitForSeconds(1f);
-                                    
-                                }
-                                else if (_status == null)
-                                {
-                                    if(!characterUIs[c.GetCurrentPosition()].activeInHierarchy)
-                                    {
-                                        characterUIs[c.GetCurrentPosition()].SetActive(true);
-                                    }
-                                }
-
-                                voiceAudio.clip = c.GetClip(currLine.speechIndex);
-                                if (voiceAudio.clip.length > 0)
-                                {
-                                    readingSpeed = voiceAudio.clip.length + 0.18f;
-                                }
-                                else
-                                {
-                                    readingSpeed = 2.0f;
-                                }
-                                voiceMixer.SetFloat("Pitch", c.mixerPitch);
-                                voiceAudio.PlayDelayed(0.15f);
-
-                                StartCoroutine(TypingDialogue(dialogDisplay, currLine.dialogContent, typingSpeed));
-
-                                yield return new WaitForSeconds(readingSpeed);
-
-                                if(_status == 0)
-                                {
-                                    StartCoroutine(transitionEffects.UIFadeOut(characterUIs[c.GetCurrentPosition()], 1f));
-                                    StartCoroutine(DelayedSetActive(characterUIs[c.GetCurrentPosition()], false, 1.1f));
-                                    c.SetCurrentPosition(999);
-                                    // dialogueUI.SetActive(false); // should be LeanTween VFX
-                                    UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.toLeft, LeanTweenType.easeInBack);
-                                    StartCoroutine(DelayedSetActive(dialogueUI, false, 1.1f));
-                                    StartCoroutine(UIControls.DelayedResetUIPosition(dialogueUI, 1.12f));
-                                    yield return new WaitForSeconds(1.15f);
-                                }
-                                // lineComplete = true;
-                            }     
-                        }
-                        else
+                    // If it's tagged as KP ...
+                    if(isKP)
+                    {
+                        if (!KP_as_PC)
                         {
-                            // Regular PC line
+                            // KP line 
                             Sprite sprite2Display = default;
-
-                            // KP stand-by
-                            foreach(Characters kp in theKPs)
-                            {
-                                if(kp.GetCurrentPosition() != 999)
-                                {
-                                    characterImgs[kp.GetCurrentPosition()].sprite = kp.emotionSprites[0];
-                                    characterImgs[kp.GetCurrentPosition()].SetNativeSize();
-                                }
-                            }
 
                             // emoSelect
                             if (currLine.emoSelect != null)
@@ -886,148 +779,295 @@ public class AutoplayManager : MonoBehaviour
                             {
                                 if (c.GetCurrentPosition() == 999) // if not displayed, then select a sprite to display
                                 {
-                                    sprite2Display = c.emotionSprites[0];
+                                    sprite2Display = c.emotionSprites[1];
                                 }
                                 else
                                 {
-                                    // current displayed sprite
-                                    sprite2Display = envCharacterSRs[(int)c.GetCurrentPosition()].sprite;
+                                    // sprite2Display = characterImgs[c.GetCurrentPosition()].sprite;
+                                    sprite2Display = c.emotionSprites[1];
                                 }
                             }
 
                             // posSelect
-                            if (currLine.posSelect != null) 
+                            if (currLine.posSelect != null)
                             {
-                                if(c.GetCurrentPosition() == 999) // if character hasn't been add to the scene yet
+                                if ((int)UICharPositionStatus[characterUIs[(int)currLine.posSelect]] == 0)
                                 {
-                                    if((int)envCharPositionStatus[envCharacters[(int)currLine.posSelect]] == 1)
-                                    {
-                                        Debug.Log("Wrong Position: Position occupied!");
-                                    }
-                                    else
-                                    {
-                                        // then add it to the scene
-                                        int _pos = (int)currLine.posSelect;
-                                        c.SetCurrentPosition(_pos);                
-                                        envCharacterSRs[_pos].sprite = sprite2Display;
-                                        envCharPositionStatus[envCharacters[_pos]] = (int)1;
-                                        envCharacters[_pos].transform.localPosition = Vector3.up * (c.offsetY);
-                                    }
-                                }
-                                else // if already in the scene
-                                {
-                                    int _curPos = c.GetCurrentPosition();
-                                    // if occupied
-                                    if((int)envCharPositionStatus[envCharacters[(int)currLine.posSelect]] == 1)
-                                    {
-                                        // don't set the current SELECTED position to the current character
-                                    }
-                                    // if vacant
-                                    else if((int)envCharPositionStatus[envCharacters[(int)currLine.posSelect]] == 0)
-                                    {
-                                        
-                                        c.SetCurrentPosition((int)currLine.posSelect);
-                                        envCharacterSRs[(int)currLine.posSelect].sprite = sprite2Display;
-                                        envCharPositionStatus[envCharacters[(int)currLine.posSelect]] = (int)1;
-                                        envCharacters[(int)currLine.posSelect].transform.localPosition = Vector3.up * (c.offsetY);
-                                    }
-                                    characterDisplayControls.MoveCharacterPosition(_curPos, (int)currLine.posSelect);
+                                    c.SetCurrentPosition((int)currLine.posSelect);
+                                    characterImgs[(int)currLine.posSelect].sprite = sprite2Display;
+                                    characterImgs[(int)currLine.posSelect].SetNativeSize();
+                                    UICharPositionStatus[characterUIs[(int)currLine.posSelect]] = (int)1;
                                 }
                             }
-                            else 
+                            else
                             {
                                 if (c.GetCurrentPosition() == 999)
                                 {
-                                    for (int i = 0; i < envCharacters.Length; i++)
+                                    for (int i = 0; i < characterUIs.Length; i++)
                                     {
-                                        if ((int)envCharPositionStatus[envCharacters[i]] == 0)
+                                        if ((int)UICharPositionStatus[characterUIs[i]] == 0)
                                         {
                                             c.SetCurrentPosition(i);
-                                            envCharacterSRs[i].sprite = c.emotionSprites[0];
-                                            envCharPositionStatus[envCharacters[i]] = (int)1;
-                                            envCharacters[i].transform.localPosition = Vector3.up * (c.offsetY); 
-                                            // envCharacters[i].SetActive(true);
+                                            characterImgs[i].sprite = sprite2Display;
+                                            characterImgs[i].SetNativeSize();
+                                            UICharPositionStatus[characterUIs[i]] = (int)1;
                                             break;
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    characterImgs[c.GetCurrentPosition()].sprite = sprite2Display;
+                                    characterImgs[c.GetCurrentPosition()].SetNativeSize();
+                                }
                             }
 
                             if (_status == 1)
-                            {                              
-                                characterDisplayControls.IncreaseOneCharacter(c.GetCurrentPosition());
-                                envCharacters[c.GetCurrentPosition()].SetActive(true);
+                            {
+                                StartCoroutine(transitionEffects.UIFadeIn(characterUIs[c.GetCurrentPosition()], 1f));
+                                characterUIs[c.GetCurrentPosition()].SetActive(true);
                                 // dialogueUI.SetActive(true);
-                                // Add LeanTween for dialogueUI...
+                                // Add LeanTween ...
                                 UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
+                                UIControls.UISlide(characterUIs[c.GetCurrentPosition()], mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeInBounce);
                                 StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
+                                StartCoroutine(DelayedSetActive(characterUIs[c.GetCurrentPosition()], true, 0.1f));
                                 yield return new WaitForSeconds(1f);
-
+                                nameUIs[c.nameDisplayPosition].SetActive(true);
                             }
                             else if (_status == null)
                             {
-                                if(!envCharacters[c.GetCurrentPosition()].activeInHierarchy)
+                                if (!characterUIs[c.GetCurrentPosition()].activeInHierarchy)
                                 {
-                                    characterDisplayControls.IncreaseOneCharacter(c.GetCurrentPosition());
-                                    envCharacters[c.GetCurrentPosition()].SetActive(true);
+                                    
+                                    UIControls.UISlide(characterUIs[c.GetCurrentPosition()], mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeInBounce);                                  
+                                    StartCoroutine(DelayedSetActive(characterUIs[c.GetCurrentPosition()], true, 0.1f));
                                     if(!dialogueUI.activeInHierarchy)
                                     {
                                         UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
                                         StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
                                         yield return new WaitForSeconds(1f);
+                                        nameUIs[c.nameDisplayPosition].SetActive(true);
                                     }
                                 }
                             }
 
-                            // Speaking...
-                            if (c.GetCurrentPosition() != 999)
-                            {
-                                characterDisplayControls.CharacterSpeaking(c.GetCurrentPosition());
-                            }
-                           
-                            // ===================Audio=======================
-                             
                             voiceAudio.clip = c.GetClip(currLine.speechIndex);
                             if (voiceAudio.clip.length > 0)
                             {
-                                readingSpeed = voiceAudio.clip.length + 0.52f;
+                                readingSpeed = voiceAudio.clip.length + 0.18f;
                             }
                             else
                             {
                                 readingSpeed = 2.0f;
                             }
                             voiceMixer.SetFloat("Pitch", c.mixerPitch);
-                            voiceAudio.PlayDelayed(0.5f);
+                            voiceAudio.PlayDelayed(0.15f);
 
-                            nameDisplays[c.nameDisplayPosition].text = c.displayName.ToString();
+                            if (c.displayName.Length > 0)
+                            {
+                                nameDisplays[c.nameDisplayPosition].text = c.displayName.ToString();
+                            }
                             StartCoroutine(TypingDialogue(dialogDisplay, currLine.dialogContent, typingSpeed));
 
-                            // Timing Stuff
-                            if(currLine.timing != null)
+                            // SHOULD BE CHANGED
+                            if(_status == 0 && currLine.emoSelect != null)
                             {
-                                float theTime = ((int)currLine.timing / currDialog.Length) * readingSpeed;
-
-                                yield return new WaitForSeconds(theTime);
-                                // 2nd Emotion Change...
-
+                                characterImgs[c.GetCurrentPosition()].sprite = sprite2Display;
                             }
 
                             yield return new WaitForSeconds(readingSpeed);
-                            // 
-                            if(_status == 0)
+
+                            if (_status == 0)
                             {
-                                characterDisplayControls.DecreaseOneCharacter(c.GetCurrentPosition());
-                                StartCoroutine(DelayedSetActive(envCharacters[c.GetCurrentPosition()], false, 1.1f));
+                                StartCoroutine(transitionEffects.UIFadeOut(characterUIs[c.GetCurrentPosition()], 1f));
+                                StartCoroutine(DelayedSetActive(characterUIs[c.GetCurrentPosition()], false, 1.1f));
                                 c.SetCurrentPosition(999);
                                 // dialogueUI.SetActive(false); // should be LeanTween VFX
-                                UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.toButtom, LeanTweenType.easeInBack);
+                                UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.toLeft, LeanTweenType.easeInBack);
                                 StartCoroutine(DelayedSetActive(dialogueUI, false, 1.1f));
                                 StartCoroutine(UIControls.DelayedResetUIPosition(dialogueUI, 1.12f));
                                 yield return new WaitForSeconds(1.15f);
                             }
                             // lineComplete = true;
                         }
-                    }  
+                    }
+                    else // NOT TAGGED as KP
+                    {
+                        // Regular PC line
+                        Sprite sprite2Display = default;
+
+                        // KP stand-by
+                        foreach (Characters kp in theKPs)
+                        {
+                            if (kp.GetCurrentPosition() != 999)
+                            {
+                                characterImgs[kp.GetCurrentPosition()].sprite = kp.emotionSprites[0];
+                                characterImgs[kp.GetCurrentPosition()].SetNativeSize();
+                            }
+                        }
+
+                        // emoSelect
+                        if (currLine.emoSelect != null)
+                        {
+                            sprite2Display = c.emotionSprites[(int)currLine.emoSelect];
+                        }
+                        else
+                        {
+                            if (c.GetCurrentPosition() == 999) // if not displayed, then select a sprite to display
+                            {
+                                sprite2Display = c.emotionSprites[0];
+                            }
+                            else
+                            {
+                                // current displayed sprite
+                                sprite2Display = envCharacterSRs[(int)c.GetCurrentPosition()].sprite;
+                            }
+                        }
+
+                        // posSelect
+                        if (currLine.posSelect != null)
+                        {
+                            if (c.GetCurrentPosition() == 999) // if character hasn't been add to the scene yet
+                            {
+                                if ((int)envCharPositionStatus[envCharacters[(int)currLine.posSelect]] == 1)
+                                {
+                                    Debug.Log("Wrong Position: Position occupied!");
+                                }
+                                else
+                                {
+                                    // then add it to the scene
+                                    int _pos = (int)currLine.posSelect;
+                                    c.SetCurrentPosition(_pos);
+                                    envCharacterSRs[_pos].sprite = sprite2Display;
+                                    envCharPositionStatus[envCharacters[_pos]] = (int)1;
+                                    envCharacters[_pos].transform.localPosition = Vector3.up * (c.offsetY);
+                                }
+                            }
+                            else // if already in the scene
+                            {
+                                int _curPos = c.GetCurrentPosition();
+                                // if occupied
+                                if ((int)envCharPositionStatus[envCharacters[(int)currLine.posSelect]] == 1)
+                                {
+                                    // don't set the current SELECTED position to the current character
+                                }
+                                // if vacant
+                                else if ((int)envCharPositionStatus[envCharacters[(int)currLine.posSelect]] == 0)
+                                {
+
+                                    c.SetCurrentPosition((int)currLine.posSelect);
+                                    envCharacterSRs[(int)currLine.posSelect].sprite = sprite2Display;
+                                    envCharPositionStatus[envCharacters[(int)currLine.posSelect]] = (int)1;
+                                    envCharacters[(int)currLine.posSelect].transform.localPosition = Vector3.up * (c.offsetY);
+                                }
+                                characterDisplayControls.MoveCharacterPosition(_curPos, (int)currLine.posSelect);
+                            }
+                        }
+                        else
+                        {
+                            if (c.GetCurrentPosition() == 999)
+                            {
+                                for (int i = 0; i < envCharacters.Length; i++)
+                                {
+                                    if ((int)envCharPositionStatus[envCharacters[i]] == 0)
+                                    {
+                                        c.SetCurrentPosition(i);
+                                        envCharacterSRs[i].sprite = c.emotionSprites[0];
+                                        envCharPositionStatus[envCharacters[i]] = (int)1;
+                                        envCharacters[i].transform.localPosition = Vector3.up * (c.offsetY);
+                                        // envCharacters[i].SetActive(true);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (_status == 1)
+                        {
+                            characterDisplayControls.IncreaseOneCharacter(c.GetCurrentPosition());
+                            StartCoroutine(DelayedSetActive(envCharacters[c.GetCurrentPosition()], true, 0.1f)); // for UpdateNumOnScreen(), keep this number small
+                            // dialogueUI.SetActive(true);
+                            // Add LeanTween for dialogueUI...
+                            UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
+                            StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
+                            yield return new WaitForSeconds(1f);
+                            nameUIs[c.nameDisplayPosition].SetActive(true);
+
+                        }
+                        else if (_status == null)
+                        {
+                            if (!envCharacters[c.GetCurrentPosition()].activeInHierarchy)
+                            {
+                                characterDisplayControls.IncreaseOneCharacter(c.GetCurrentPosition());
+                                StartCoroutine(DelayedSetActive(envCharacters[c.GetCurrentPosition()], true, 0.1f)); // for UpdateNumOnScreen(), keep this number small
+                                if (!dialogueUI.activeInHierarchy)
+                                {
+                                    UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
+                                    StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
+                                    yield return new WaitForSeconds(1f);
+                                    nameUIs[c.nameDisplayPosition].SetActive(true);
+                                }
+                            }
+                            envCharacterSRs[c.GetCurrentPosition()].sprite = sprite2Display;
+                        }
+                        // Speaking...
+                        if (c.GetCurrentPosition() != 999)
+                        {
+                            characterDisplayControls.CharacterSpeaking(c.GetCurrentPosition());
+                        }
+
+                        // ===================Audio=======================
+
+                        voiceAudio.clip = c.GetClip(currLine.speechIndex);
+                        if (voiceAudio.clip.length > 0)
+                        {
+                            readingSpeed = voiceAudio.clip.length + 0.52f;
+                        }
+                        else
+                        {
+                            readingSpeed = 2.0f;
+                        }
+                        voiceMixer.SetFloat("Pitch", c.mixerPitch);
+                        voiceAudio.PlayDelayed(0.5f);
+
+                        nameDisplays[c.nameDisplayPosition].text = c.displayName.ToString();
+
+                        StartCoroutine(TypingDialogue(dialogDisplay, currLine.dialogContent, typingSpeed));
+
+                        // Timing Stuff
+                        if (currLine.timing != null)
+                        {
+                            float theTime = ((int)currLine.timing / currDialog.Length) * readingSpeed;
+
+                            yield return new WaitForSeconds(theTime);
+                            // 2nd Emotion Change...
+
+                        }
+
+                        // SHOULD BE CHANGED
+                        if (_status == 0 && currLine.emoSelect != null)
+                        {
+                            envCharacterSRs[c.GetCurrentPosition()].sprite = sprite2Display;
+                        }
+
+                        yield return new WaitForSeconds(readingSpeed);
+                        // 
+                        if (_status == 0)
+                        {
+                            dialogDisplay.text = "";
+                            nameDisplays[c.nameDisplayPosition].text = "";
+                            characterDisplayControls.DecreaseOneCharacter(c.GetCurrentPosition());
+                            StartCoroutine(DelayedSetActive(envCharacters[c.GetCurrentPosition()], false, 1.5f)); // for UpdateNumOnScreen() keep this time bigger
+                            c.SetCurrentPosition(999);
+                            // dialogueUI.SetActive(false); // should be LeanTween VFX
+                            UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.toButtom, LeanTweenType.easeInBack);
+                            StartCoroutine(DelayedSetActive(dialogueUI, false, 1.1f));
+                            StartCoroutine(UIControls.DelayedResetUIPosition(dialogueUI, 1.12f));
+                            yield return new WaitForSeconds(1.15f);
+                        }
+                        // lineComplete = true;
+                    }
                 }
             }
         }
@@ -1053,6 +1093,16 @@ public class AutoplayManager : MonoBehaviour
         else
         {
             // yield return new WaitForSeconds(readingSpeed);
+            foreach(GameObject go in characterUIs)
+            {
+                if(go.activeInHierarchy)
+                {
+                    UIControls.UISlide(go, mainCanvas, UIController.SlideType.toButtom, LeanTweenType.easeInOutSine);
+                    StartCoroutine(DelayedSetActive(go, false, 1.1f));
+                    StartCoroutine(UIControls.DelayedResetUIPosition(go, 1.12f));
+                }
+            }
+
             PullCloseCurtain();
             dialogDisplay.text = "";
             foreach (TextMeshProUGUI textPro in nameDisplays)

@@ -82,7 +82,7 @@ public class CharacterDisplayController : MonoBehaviour
             // envCharacters[index].SetActive(true);
             StartCoroutine(transitionEffects.FadeIn(envCharacters[index], 1f)); // VFX Select, initial position Y set by manager
             alphaStatus[envCharacters[index]] = 1;         
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.2f); // must be larger than delayed active in Autoplay Manager!!!
             UpdateNumOnScreen();
             SetDistance();
             UpdateCharacterPositions();
@@ -245,7 +245,7 @@ public class CharacterDisplayController : MonoBehaviour
         }
         else
         {
-            intervalDist = 6f;
+            intervalDist = 4.75f;
         }
     }  
 }

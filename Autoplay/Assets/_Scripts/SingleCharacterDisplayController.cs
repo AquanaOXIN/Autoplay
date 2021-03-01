@@ -14,7 +14,7 @@ public class SingleCharacterDisplayController : MonoBehaviour
     private bool isLerping;
     private float t;
     [SerializeField]
-    private float baseSpeed = 1.0f, moveCurveScale = 0.01f;
+    private float baseSpeed = 1f, moveCurveScale = 0.01f;
     private float moveSpeed;
     private float defaultMoveCurveScale = 0.01f;
     [SerializeField]

@@ -1,0 +1,37 @@
+[STAGE]:[0|]
+[Greenal]:[1|0|1||||||]大家好，我是格林纳尔。
+[Verika]:[1|1|1||||||]Hello! My name is Verika. 
+[Verika]:[||||||||]Today, Greenal and I are going to show you a (not so) powerful tool for making replay videos of your TRPG campaigns.
+[Greenal]:[||||||||]首先，我们介绍一下这个工具的基本功能：
+[Greenal]:[||||||||]功能0：正如您在本影片开头所见，本工具可以为您提供Loading 界面，以避免您的观众看到尚未布置好的场景。
+[Verika]:[||||||||]Feature #1: You can attach different dialogue UI to your different characters, and you can also determine where to display the name of the characters according to their dialogue UI. 
+[Greenal]:[||||||||]功能2：立绘自动摆放。首先我们来加入一些角色吧。
+[RB]:[4|3|1||||||]What beautiful weather!
+[JK]:[0|0|1||||||]您吃了吗？
+[Greenal]:[||||||||]您的无需提前拖拽角色需要被摆放到的具体位置，而是直接在log中填写您所想让他们出现的相对位置，在展示时，本工具会为您的角色自动安排好位置。
+[Verika]:[||||||||]Feature #3：You can change the pose of a character either at the beginning of a dialogue line or in the middle of the line.
+[Verika]:[||||||||] …Oh wait, that’s still under development!
+[RB]:[3||||||||]……
+[JK]:[4||||||||]……
+[Greenal]:[||||||||]功能4：骰子功能。
+[ROLL]:[|5||||]Greenal 随便roll一个：1D10 = 5。
+[Greenal]:[||||||||]您可以根据您的品味来选择骰子的立绘和音效。
+[Verika]:[||||||||]Feature #5: Display an item on the screen. 
+[UIS]:[0||1|]
+[Verika]:[||||||||]Here is a sketch of some dolls. 
+[Verika]:[||||||||]And you can determine when you would like to hide the display from your audience. 
+[UIS]:[||0|]
+[Greenal]:[||||||||]功能6：角色立绘位置移动。您的角色可以在场景中与其他角色进行简单交互。
+[JK]:[1|3|||||||]！
+[Verika]:[||||||||]Feature #7：Change the background of the current stage. 
+[BG]:[1||]
+[Greenal]:[||||||||]功能8：切换场景。
+[STAGE]:[1|]
+[JK]:[0||0||||||]……
+[RB]:[0||0||||||]……
+[Verika]:[||||||||]That’s pretty much all of the features we can demonstrate to you today. The tool is still under the development phase, and more features are going to be added soon.
+[Greenal]:[||||||||]感谢您的观看，我很期待我们的再会。
+[Verika]:[||||||||]Thank you so much! You are so adorable. See ya next time! 
+[小蝶]:[||||||||]喂，你在撩谁呢。
+[Verika]:[||||||||]Ah.
+[Greenal]:[||||||||]……
