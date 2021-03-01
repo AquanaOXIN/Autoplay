@@ -68,6 +68,12 @@ public class AutoplayManager : MonoBehaviour
     private Image itemImg = default;
     private Image foregroundImg = default;
 
+    [Header("Decoration UI Elements")]
+    [SerializeField]
+    private GameObject leftCurtain = default;
+    [SerializeField]
+    private GameObject rightCurtain = default;
+
     [Header("Basic Environment Elements")]
     //[SerializeField]
     //private GameObject addLights = default;
@@ -157,7 +163,8 @@ public class AutoplayManager : MonoBehaviour
     {
         // Curtain blocking stuff...
         foregroundUI.SetActive(true);
-
+        leftCurtain.SetActive(true);
+        rightCurtain.SetActive(true);
         // Initialize UI Components
         dialogImg = dialogueUI.GetComponent<Image>();
         // dialogDisplay = dialogueUI.GetComponentInChildren<TextMeshProUGUI>();
@@ -293,6 +300,8 @@ public class AutoplayManager : MonoBehaviour
         {
             textPro.text = "";
         }
+
+        PullAwayCurtain();
         StartCoroutine(ExecutingLine());
     }
 
@@ -546,6 +555,7 @@ public class AutoplayManager : MonoBehaviour
                 }
                 envBGSR.sprite = BackgroundSprites[(int)currLine.spriteSelect];
                 StartCoroutine(transitionEffects.FadeIn(envBackground, 0.5f));
+                yield return new WaitForSeconds(0.52f);
             }
             else
             {
@@ -585,6 +595,7 @@ public class AutoplayManager : MonoBehaviour
                 }
                 if (envBGSR.sprite != null)
                 {
+                    StartCoroutine(transitionEffects.UIFadeIn(foregroundUI, 1f));
                     StartCoroutine(transitionEffects.FadeOut(envBackground, 1f));
                     yield return new WaitForSeconds(1.01f);
 
@@ -597,7 +608,9 @@ public class AutoplayManager : MonoBehaviour
                 {
                     envBGSR.sprite = BackgroundSprites[0];
                 }
-                StartCoroutine(transitionEffects.FadeIn(envBackground, 2f));
+                StartCoroutine(transitionEffects.UIFadeOut(foregroundUI, 1f));
+                StartCoroutine(transitionEffects.FadeIn(envBackground, 1f));
+                yield return new WaitForSeconds(1.2f);
             }
             else
             {
@@ -1040,6 +1053,7 @@ public class AutoplayManager : MonoBehaviour
         else
         {
             // yield return new WaitForSeconds(readingSpeed);
+            PullCloseCurtain();
             dialogDisplay.text = "";
             foreach (TextMeshProUGUI textPro in nameDisplays)
             {
@@ -1081,6 +1095,18 @@ public class AutoplayManager : MonoBehaviour
     {
         yield return new WaitForSeconds(_waitingTime);
         lineComplete = true;
+    }
+
+    private void PullAwayCurtain()
+    {
+        UIControls.UISlide(leftCurtain, mainCanvas, UIController.SlideType.toLeft, LeanTweenType.easeInOutSine);
+        UIControls.UISlide(rightCurtain, mainCanvas, UIController.SlideType.toRight, LeanTweenType.easeInOutSine);
+    }
+
+    private void PullCloseCurtain()
+    {
+        UIControls.UISlide(leftCurtain, mainCanvas, UIController.SlideType.toRight, LeanTweenType.easeInOutSine);
+        UIControls.UISlide(rightCurtain, mainCanvas, UIController.SlideType.toLeft, LeanTweenType.easeInOutSine);
     }
 
     /// Convert Type
