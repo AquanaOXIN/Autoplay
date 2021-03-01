@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 944f9dc9d3a6a4a46b3ab24a16fad0d7, type: 3}
   m_Name: Stage1
   m_EditorClassIdentifier: 
-  backgroundSprite: {fileID: 21300000, guid: 7d3fdddeed7054c4eb14813f6af3aa75, type: 3}
+  backgroundSprite: {fileID: 21300000, guid: db2a659a1293ae645a7a317609eae4b4, type: 3}
   backgroundMusic: {fileID: 8300000, guid: 5598b10f4202cfb4fb4f51698069ade7, type: 3}
   ambienceMusic: {fileID: 0}
