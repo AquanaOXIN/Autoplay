@@ -43,6 +43,8 @@ public class AutoplayManager : MonoBehaviour
 
     [Header("Basic UI Elements")]
     [SerializeField]
+    private Canvas mainCanvas = default;
+    [SerializeField]
     private GameObject dialogueUI = default;
     [SerializeField]
     private GameObject[] nameUIs = default;
@@ -56,6 +58,7 @@ public class AutoplayManager : MonoBehaviour
     private GameObject foregroundUI = default;
 
     private Image dialogImg = default;
+    [SerializeField]
     private TextMeshProUGUI dialogDisplay = default;
     private List<Image> nameImgs = default;
     private List<TextMeshProUGUI> nameDisplays = default;
@@ -143,6 +146,9 @@ public class AutoplayManager : MonoBehaviour
 
     // Character Display Controls
     private CharacterDisplayController characterDisplayControls = default;
+
+    // UI Controls
+    private UIController UIControls = default;
     
     // Effects
     private TransitionEffectsController transitionEffects = default;
@@ -154,7 +160,7 @@ public class AutoplayManager : MonoBehaviour
 
         // Initialize UI Components
         dialogImg = dialogueUI.GetComponent<Image>();
-        dialogDisplay = dialogueUI.GetComponentInChildren<TextMeshProUGUI>();
+        // dialogDisplay = dialogueUI.GetComponentInChildren<TextMeshProUGUI>();
         dialogDisplay.text = "";
         dialogueUI.SetActive(false);
 
@@ -217,6 +223,7 @@ public class AutoplayManager : MonoBehaviour
     private void Start()
     {
         characterDisplayControls = this.GetComponent<CharacterDisplayController>();
+        UIControls = this.GetComponent<UIController>();
         transitionEffects = this.GetComponent<TransitionEffectsController>();
 
         characterDisplayControls.InitializeEnvCharacterList(envCharacters);
@@ -650,15 +657,16 @@ public class AutoplayManager : MonoBehaviour
 
             if (!dialogueUI.activeInHierarchy)
             {
-                dialogueUI.SetActive(true);
+                // dialogueUI.SetActive(true);
+                UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
+                StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
             }
-            // Add LeanTween Effects...
 
-            
-            // should be changed 
-            StartCoroutine(transitionEffects.UIFadeIn(diceUI, 0.15f));
-            diceUI.SetActive(true);
-     
+            //StartCoroutine(transitionEffects.UIFadeIn(diceUI, 0.15f));
+            //diceUI.SetActive(true);
+            UIControls.UISlide(diceUI, mainCanvas, UIController.SlideType.fromTop, LeanTweenType.easeOutBounce);
+            StartCoroutine(DelayedSetActive(diceUI, true, 0.1f));
+
             if (currLine.sfxSelect != null)
             {
                 SFXAudio.clip = dice[(int)currLine.diceSelect].rollDiceSFX[(int)currLine.sfxSelect];
@@ -677,10 +685,14 @@ public class AutoplayManager : MonoBehaviour
                 diceDisplay.text = currLine.result.ToString();
             }
 
-            yield return new WaitForSeconds(readingSpeed - 0.3f);
-            StartCoroutine(transitionEffects.UIFadeOut(diceUI, 0.1f));
-            diceUI.SetActive(false);
+            yield return new WaitForSeconds(readingSpeed - 1.2f);
+            UIControls.UISlide(diceUI, mainCanvas, UIController.SlideType.toTop, LeanTweenType.easeInOutBack);
+            StartCoroutine(DelayedSetActive(diceUI, false, 1.1f));
+            StartCoroutine(UIControls.DelayedResetUIPosition(diceUI, 1.15f));
+            //StartCoroutine(transitionEffects.UIFadeOut(diceUI, 0.1f));
+            //diceUI.SetActive(false);
             diceDisplay.text = "";
+            yield return new WaitForSeconds(1.2f);
         }
         else // Character TAG situation ...
         {
@@ -693,6 +705,9 @@ public class AutoplayManager : MonoBehaviour
                         if (!dialogueUI.activeInHierarchy)
                         {
                             dialogueUI.SetActive(true);
+                            //UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
+                            //StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
+                            //yield return new WaitForSeconds(1f);
                         }
                         if (!nameUIs[c.nameDisplayPosition].activeInHierarchy)
                         {
@@ -738,11 +753,15 @@ public class AutoplayManager : MonoBehaviour
                                 }
                                 else
                                 {
-                                    //if(c.GetCurrentPosition() == 999) // if not displayed, then select a sprite to display
-                                    //{
-                                    sprite2Display = c.emotionSprites[1];
-                                    // Debug.Log("Displayed");
-                                    //}
+                                    if (c.GetCurrentPosition() == 999) // if not displayed, then select a sprite to display
+                                    {
+                                        sprite2Display = c.emotionSprites[1];
+                                    }
+                                    else
+                                    {
+                                        // sprite2Display = characterImgs[c.GetCurrentPosition()].sprite;
+                                        sprite2Display = c.emotionSprites[1];
+                                    }
                                 }
 
                                 // posSelect
@@ -783,12 +802,21 @@ public class AutoplayManager : MonoBehaviour
                                 {
                                     StartCoroutine(transitionEffects.UIFadeIn(characterUIs[c.GetCurrentPosition()], 1f));
                                     characterUIs[c.GetCurrentPosition()].SetActive(true);
-                                    dialogueUI.SetActive(true);
+                                    // dialogueUI.SetActive(true);
                                     // Add LeanTween ...
+                                    UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
+                                    UIControls.UISlide(characterUIs[c.GetCurrentPosition()], mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeInBounce);
+                                    StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
+                                    StartCoroutine(DelayedSetActive(characterUIs[c.GetCurrentPosition()], true, 0.1f));
+                                    yield return new WaitForSeconds(1f);
+                                    
                                 }
                                 else if (_status == null)
                                 {
-
+                                    if(!characterUIs[c.GetCurrentPosition()].activeInHierarchy)
+                                    {
+                                        characterUIs[c.GetCurrentPosition()].SetActive(true);
+                                    }
                                 }
 
                                 voiceAudio.clip = c.GetClip(currLine.speechIndex);
@@ -806,22 +834,25 @@ public class AutoplayManager : MonoBehaviour
                                 StartCoroutine(TypingDialogue(dialogDisplay, currLine.dialogContent, typingSpeed));
 
                                 yield return new WaitForSeconds(readingSpeed);
+
                                 if(_status == 0)
                                 {
                                     StartCoroutine(transitionEffects.UIFadeOut(characterUIs[c.GetCurrentPosition()], 1f));
                                     StartCoroutine(DelayedSetActive(characterUIs[c.GetCurrentPosition()], false, 1.1f));
                                     c.SetCurrentPosition(999);
-                                    dialogueUI.SetActive(false); // should be LeanTween VFX
-                                    yield return new WaitForSeconds(1f);
+                                    // dialogueUI.SetActive(false); // should be LeanTween VFX
+                                    UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.toLeft, LeanTweenType.easeInBack);
+                                    StartCoroutine(DelayedSetActive(dialogueUI, false, 1.1f));
+                                    StartCoroutine(UIControls.DelayedResetUIPosition(dialogueUI, 1.12f));
+                                    yield return new WaitForSeconds(1.15f);
                                 }
-                                lineComplete = true;
+                                // lineComplete = true;
                             }     
                         }
                         else
                         {
                             // Regular PC line
                             Sprite sprite2Display = default;
-                            nameDisplays[c.nameDisplayPosition].text = c.displayName.ToString();
 
                             // KP stand-by
                             foreach(Characters kp in theKPs)
@@ -844,12 +875,17 @@ public class AutoplayManager : MonoBehaviour
                                 {
                                     sprite2Display = c.emotionSprites[0];
                                 }
+                                else
+                                {
+                                    // current displayed sprite
+                                    sprite2Display = envCharacterSRs[(int)c.GetCurrentPosition()].sprite;
+                                }
                             }
 
                             // posSelect
-                            if (currLine.posSelect != null) // move character position?
+                            if (currLine.posSelect != null) 
                             {
-                                if(c.GetCurrentPosition() == 999)
+                                if(c.GetCurrentPosition() == 999) // if character hasn't been add to the scene yet
                                 {
                                     if((int)envCharPositionStatus[envCharacters[(int)currLine.posSelect]] == 1)
                                     {
@@ -857,16 +893,35 @@ public class AutoplayManager : MonoBehaviour
                                     }
                                     else
                                     {
-                                        // Continue work here: vacant position, set character position, add Y offset to character scriptable object
+                                        // then add it to the scene
+                                        int _pos = (int)currLine.posSelect;
+                                        c.SetCurrentPosition(_pos);                
+                                        envCharacterSRs[_pos].sprite = sprite2Display;
+                                        envCharPositionStatus[envCharacters[_pos]] = (int)1;
+                                        envCharacters[_pos].transform.localPosition = Vector3.up * (c.offsetY);
                                     }
                                 }
-                                //characterDisplayControls.MoveCharacterPosition(c.GetCurrentPosition(), (int)currLine.posSelect);
-
-                                //c.SetCurrentPosition((int)currLine.posSelect);
-                                //envCharacterSRs[(int)currLine.posSelect].sprite = sprite2Display;                               
-                                //envCharPositionStatus[envCharacters[(int)currLine.posSelect]] = (int)1;
+                                else // if already in the scene
+                                {
+                                    int _curPos = c.GetCurrentPosition();
+                                    // if occupied
+                                    if((int)envCharPositionStatus[envCharacters[(int)currLine.posSelect]] == 1)
+                                    {
+                                        // don't set the current SELECTED position to the current character
+                                    }
+                                    // if vacant
+                                    else if((int)envCharPositionStatus[envCharacters[(int)currLine.posSelect]] == 0)
+                                    {
+                                        
+                                        c.SetCurrentPosition((int)currLine.posSelect);
+                                        envCharacterSRs[(int)currLine.posSelect].sprite = sprite2Display;
+                                        envCharPositionStatus[envCharacters[(int)currLine.posSelect]] = (int)1;
+                                        envCharacters[(int)currLine.posSelect].transform.localPosition = Vector3.up * (c.offsetY);
+                                    }
+                                    characterDisplayControls.MoveCharacterPosition(_curPos, (int)currLine.posSelect);
+                                }
                             }
-                            else
+                            else 
                             {
                                 if (c.GetCurrentPosition() == 999)
                                 {
@@ -877,21 +932,48 @@ public class AutoplayManager : MonoBehaviour
                                             c.SetCurrentPosition(i);
                                             envCharacterSRs[i].sprite = c.emotionSprites[0];
                                             envCharPositionStatus[envCharacters[i]] = (int)1;
-                                            characterDisplayControls.IncreaseOneCharacter(i);
+                                            envCharacters[i].transform.localPosition = Vector3.up * (c.offsetY); 
+                                            // envCharacters[i].SetActive(true);
                                             break;
                                         }
                                     }
                                 }
                             }
 
+                            if (_status == 1)
+                            {                              
+                                characterDisplayControls.IncreaseOneCharacter(c.GetCurrentPosition());
+                                envCharacters[c.GetCurrentPosition()].SetActive(true);
+                                // dialogueUI.SetActive(true);
+                                // Add LeanTween for dialogueUI...
+                                UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
+                                StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
+                                yield return new WaitForSeconds(1f);
 
+                            }
+                            else if (_status == null)
+                            {
+                                if(!envCharacters[c.GetCurrentPosition()].activeInHierarchy)
+                                {
+                                    characterDisplayControls.IncreaseOneCharacter(c.GetCurrentPosition());
+                                    envCharacters[c.GetCurrentPosition()].SetActive(true);
+                                    if(!dialogueUI.activeInHierarchy)
+                                    {
+                                        UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
+                                        StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
+                                        yield return new WaitForSeconds(1f);
+                                    }
+                                }
+                            }
+
+                            // Speaking...
                             if (c.GetCurrentPosition() != 999)
                             {
                                 characterDisplayControls.CharacterSpeaking(c.GetCurrentPosition());
                             }
                            
-                            // ==================================================
-
+                            // ===================Audio=======================
+                             
                             voiceAudio.clip = c.GetClip(currLine.speechIndex);
                             if (voiceAudio.clip.length > 0)
                             {
@@ -904,15 +986,40 @@ public class AutoplayManager : MonoBehaviour
                             voiceMixer.SetFloat("Pitch", c.mixerPitch);
                             voiceAudio.PlayDelayed(0.5f);
 
+                            nameDisplays[c.nameDisplayPosition].text = c.displayName.ToString();
                             StartCoroutine(TypingDialogue(dialogDisplay, currLine.dialogContent, typingSpeed));
 
+                            // Timing Stuff
+                            if(currLine.timing != null)
+                            {
+                                float theTime = ((int)currLine.timing / currDialog.Length) * readingSpeed;
+
+                                yield return new WaitForSeconds(theTime);
+                                // 2nd Emotion Change...
+
+                            }
+
                             yield return new WaitForSeconds(readingSpeed);
-                            lineComplete = true;
+                            // 
+                            if(_status == 0)
+                            {
+                                characterDisplayControls.DecreaseOneCharacter(c.GetCurrentPosition());
+                                StartCoroutine(DelayedSetActive(envCharacters[c.GetCurrentPosition()], false, 1.1f));
+                                c.SetCurrentPosition(999);
+                                // dialogueUI.SetActive(false); // should be LeanTween VFX
+                                UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.toButtom, LeanTweenType.easeInBack);
+                                StartCoroutine(DelayedSetActive(dialogueUI, false, 1.1f));
+                                StartCoroutine(UIControls.DelayedResetUIPosition(dialogueUI, 1.12f));
+                                yield return new WaitForSeconds(1.15f);
+                            }
+                            // lineComplete = true;
                         }
                     }  
                 }
             }
         }
+
+        lineComplete = true;
     }
 
     private void NextLine()

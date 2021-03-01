@@ -25,4 +25,5 @@ MonoBehaviour:
   animatedCharacter: {fileID: 0}
   audioFolder: "\u5C0F\u8776"
   mixerPitch: 1.2
-  currentPosition: 999
+  offsetY: 1
+  defaultPosition: 999

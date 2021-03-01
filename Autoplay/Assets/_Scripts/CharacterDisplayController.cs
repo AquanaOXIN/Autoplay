@@ -79,7 +79,7 @@ public class CharacterDisplayController : MonoBehaviour
     {
         if((int)alphaStatus[envCharacters[index]] == 0)
         {
-            envCharacters[index].SetActive(true);
+            // envCharacters[index].SetActive(true);
             StartCoroutine(transitionEffects.FadeIn(envCharacters[index], 1f)); // VFX Select, initial position Y set by manager
             alphaStatus[envCharacters[index]] = 1;         
             yield return new WaitForSeconds(0.1f);
@@ -109,7 +109,8 @@ public class CharacterDisplayController : MonoBehaviour
 
     private IEnumerator SingleCharacterMovePosition(int currPos, int tarPos) // int for positions
     {
-        if(envCharacters[tarPos].activeInHierarchy && (int)alphaStatus[envCharacters[tarPos]] > 0) // if tarPos already has a character displayed
+        // if tarPos already has a character displayed, then "hug"
+        if (envCharacters[tarPos].activeInHierarchy && (int)alphaStatus[envCharacters[tarPos]] > 0) 
         {
             envCharacters[currPos].GetComponent<SpriteRenderer>().sortingOrder += 5;
             Vector3 destinate_position = envCharacters[tarPos].transform.position;
@@ -131,7 +132,8 @@ public class CharacterDisplayController : MonoBehaviour
             envCharacters[currPos].GetComponent<SingleCharacterDisplayController>().StartLerping();
             yield return new WaitForSeconds(1f);
             envCharacters[currPos].GetComponent<SingleCharacterDisplayController>().ResetLerpScale();
-        }
+        } 
+        // if the tarPos hasn't been occupied, then just move character position
         else if((int)alphaStatus[envCharacters[tarPos]] == 0)
         {
             Vector3 destinate_position = envCharacters[tarPos].transform.position;

@@ -21,9 +21,12 @@ public class Characters : ScriptableObject
     public bool animated = default;
     public GameObject animatedCharacter = default;
 
-    [Header("Related Audio")]
+    [Header("Audio Related")]
     public string audioFolder = default;
     public float mixerPitch = default;
+
+    [Header("Additional Settings")]
+    public float offsetY = default;
 
     private AudioClip[] voiceClips = default;
     [SerializeField]

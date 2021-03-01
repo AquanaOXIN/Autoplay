@@ -13,12 +13,9 @@ MonoBehaviour:
   m_Name: GreenalDie
   m_EditorClassIdentifier: 
   dieSprite: {fileID: 21300000, guid: 5561d77ff2d790342b576421dce82dfc, type: 3}
+  dialogBGSprite: {fileID: 21300000, guid: 964aa2e3951e55e448047172f9a96dab, type: 3}
   rollDiceSFX:
   - {fileID: 8300000, guid: 902e6de10aaca4f6085115dbb2f0fd28, type: 3}
   - {fileID: 8300000, guid: 7c763e87ab2014ed2baf1b2b03d4c852, type: 3}
   - {fileID: 8300000, guid: 669376a583786470d994772a576cecb1, type: 3}
   - {fileID: 8300000, guid: 7aa83da633e054c9e95da044f8f96733, type: 3}
-  extraSuccess: {fileID: 8300000, guid: e73067155e47c4d36a2927cc2acfc898, type: 3}
-  successSFX: {fileID: 8300000, guid: 00231189b5a514d7aa1315f030a17b22, type: 3}
-  failSFX: {fileID: 8300000, guid: 669376a583786470d994772a576cecb1, type: 3}
-  extraFail: {fileID: 8300000, guid: 01c22bdafcac5411c8a20ccac365a7e9, type: 3}
