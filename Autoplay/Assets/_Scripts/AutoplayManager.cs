@@ -907,7 +907,14 @@ public class AutoplayManager : MonoBehaviour
                                 // dialogueUI.SetActive(true);
                                 // Add LeanTween ...
                                 UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
-                                UIControls.UISlide(characterUIs[c.GetCurrentPosition()], mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeInBounce);
+                                if(characterUIs[c.GetCurrentPosition()].GetComponent<RectTransform>().anchoredPosition.x > 0)
+                                {
+                                    UIControls.UISlide(characterUIs[c.GetCurrentPosition()], mainCanvas, UIController.SlideType.fromRight, LeanTweenType.easeOutSine);
+                                }
+                                else
+                                {
+                                    UIControls.UISlide(characterUIs[c.GetCurrentPosition()], mainCanvas, UIController.SlideType.fromLeft, LeanTweenType.easeOutSine);
+                                }                             
                                 StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
                                 StartCoroutine(DelayedSetActive(characterUIs[c.GetCurrentPosition()], true, 0.1f));
                                 yield return new WaitForSeconds(1f);
@@ -1204,7 +1211,11 @@ public class AutoplayManager : MonoBehaviour
             }
             diceDisplay.text = "";
             lineComplete = false;
-            dialogueUI.SetActive(false);
+            // dialogueUI.SetActive(false);
+            UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.toButtom, LeanTweenType.easeInBack);
+            StartCoroutine(DelayedSetActive(dialogueUI, false, 1.1f));
+            StartCoroutine(UIControls.DelayedResetUIPosition(dialogueUI, 1.12f));
+
             progIndex = 0;
             fullLog = "";
             rawLines = new List<string>();
