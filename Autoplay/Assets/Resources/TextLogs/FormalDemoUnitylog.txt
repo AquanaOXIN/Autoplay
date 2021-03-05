@@ -29,7 +29,9 @@
 [STAGE]:[1|]
 [JK]:[0||0||||||]……
 [RB]:[0||0||||||]……
+[CG]:[0|1]
 [Verika]:[||||||||]That’s pretty much all of the features we can demonstrate to you today. The tool is still under the development phase, and more features are going to be added soon.
+[CG]:[|0]
 [Greenal]:[||||||||]感谢您的观看，我很期待我们的再会。
 [Verika]:[||||||||]Thank you so much! You are so adorable. See ya next time! 
 [小蝶]:[||||||||]喂，你在撩谁呢。
