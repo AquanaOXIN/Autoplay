@@ -216,7 +216,7 @@ public class CharacterDisplayController : MonoBehaviour
                 {
                     if (i != index)
                     {
-                        transitionEffects.SetAlphaImmediately(envCharacters[i], 0.3f);
+                        transitionEffects.SetAlphaImmediately(envCharacters[i], 0.45f);
                         alphaStatus[envCharacters[i]] = 2;
                     }
                 }

@@ -24,6 +24,8 @@ public class AutoplayManager : MonoBehaviour
     [SerializeField]
     private string BGTAG = default; // tag in log for background
     [SerializeField]
+    private string CGTAG = default; 
+    [SerializeField]
     private string ESTAG = default; // tag in log for scene sprite
     [SerializeField]
     private string UISTAG = default; // tag in log for UI sprite
@@ -57,6 +59,10 @@ public class AutoplayManager : MonoBehaviour
     private GameObject itemUI = default;
     [SerializeField]
     private GameObject foregroundUI = default;
+    [SerializeField]
+    private GameObject cgUI = default;
+    [SerializeField]
+    private GameObject cgDialogUI = default;
 
     private Image dialogImg = default;
     [SerializeField]
@@ -68,6 +74,7 @@ public class AutoplayManager : MonoBehaviour
     private List<Image> characterImgs = default;
     private Image itemImg = default;
     private Image foregroundImg = default;
+    private Image cgImg = default;
 
     [Header("Decoration UI Elements")]
     [SerializeField]
@@ -96,6 +103,8 @@ public class AutoplayManager : MonoBehaviour
     private Sprite[] envSprites = default;
     [SerializeField]
     private Sprite[] UISprites = default;
+    [SerializeField]
+    private Sprite[] CGSprites = default;
 
     [Header("Audio Elements")]
     [SerializeField, Range(0, 1)]
@@ -145,6 +154,7 @@ public class AutoplayManager : MonoBehaviour
 
     // Formatting Params
     private int bgInParamNum = 3;
+    private int cgInParamNum = 2;
     private int uisInParamNum = 4;
     private int esInParamNum = 4;
     private int rollInParamNum = 6;
@@ -160,6 +170,9 @@ public class AutoplayManager : MonoBehaviour
     // Effects
     private TransitionEffectsController transitionEffects = default;
 
+    // Other
+    private bool inCG = default;
+
     private void Awake()
     {
         // Curtain blocking stuff...
@@ -171,6 +184,10 @@ public class AutoplayManager : MonoBehaviour
         // dialogDisplay = dialogueUI.GetComponentInChildren<TextMeshProUGUI>();
         dialogDisplay.text = "";
         dialogueUI.SetActive(false);
+
+        cgUI.SetActive(false);
+        cgDialogUI.SetActive(false);
+        inCG = false;
 
         nameImgs = new List<Image>();
         nameDisplays = new List<TextMeshProUGUI>();
@@ -201,6 +218,8 @@ public class AutoplayManager : MonoBehaviour
 
         itemImg = itemUI.GetComponent<Image>();
         itemUI.SetActive(false);
+
+        cgImg = cgUI.GetComponent<Image>();
 
         foregroundImg = foregroundUI.GetComponent<Image>();
 
@@ -319,6 +338,7 @@ public class AutoplayManager : MonoBehaviour
         string rolLineFormat = @".*\|.*\|.*\|.*";
         string dialogLineFormat = @".*\|.*\|.*\|.*\|.*\|.*\|.*\|.*";
         string stageLineFormat = @".*|.*";
+        string cgLineFormat = @".*|.*";
 
         string splitPattern0 = @"^\[";
         string splitPattern1 = @"\]\:";
@@ -376,6 +396,30 @@ public class AutoplayManager : MonoBehaviour
                             counter++;
                         }
                         BGLine _line = new BGLine(BGTAG, intParams[0], intParams[1], intParams[2]);
+                        lineTagSeq.Add(tmpTag);
+                        lineDialogSeq.Add("");
+                        procdLines.Add(_line);
+                    }
+                    else
+                    {
+                        Debug.Log("Format Error @ line " + i.ToString());
+                        break;
+                    }
+                }
+                else if(tmpTag == CGTAG)
+                {
+                    Match _m = Regex.Match(segdLine3[0], cgLineFormat);
+                    if (_m.Length > 0)
+                    {
+                        string[] in_params = Regex.Split(segdLine3[0], splitPattern4);
+                        int?[] intParams = new int?[stageInParamNum];
+                        int counter = 0;
+                        while (counter < intParams.Length)
+                        {
+                            intParams[counter] = ToNullableInt(in_params[counter]);
+                            counter++;
+                        }
+                        CGLine _line = new CGLine(STAGETAG, intParams[0], intParams[1]);
                         lineTagSeq.Add(tmpTag);
                         lineDialogSeq.Add("");
                         procdLines.Add(_line);
@@ -564,6 +608,30 @@ public class AutoplayManager : MonoBehaviour
             }
             
         }
+        else if (currTag == CGTAG)
+        {
+            readingSpeed = 0.5f;
+            CGLine currLine = (CGLine)procdLines[progIndex];
+            if (currLine.cgSelect != null)
+            {
+                if(currLine.status == 1)
+                {
+                    inCG = true;
+                    cgImg.sprite = CGSprites[(int)currLine.cgSelect];
+                    StartCoroutine(DelayedSetActive(cgUI, true, 0.1f));
+                    StartCoroutine(transitionEffects.UIFadeIn(cgUI, 0.5f));
+                    yield return new WaitForSeconds(0.51f);
+                }
+            }
+            else if(currLine.status == 0)
+            {
+                inCG = false;
+                cgDialogUI.SetActive(false);
+                StartCoroutine(transitionEffects.UIFadeOut(cgUI, 0.5f));
+                yield return new WaitForSeconds(0.51f);
+                cgUI.SetActive(false);
+            }
+        }
         else if (currTag == STAGETAG)
         {
             readingSpeed = 4f;
@@ -654,7 +722,7 @@ public class AutoplayManager : MonoBehaviour
         else if (currTag == ROLLTAG)
         {
             ROLLine currLine = (ROLLine)procdLines[progIndex];
-            readingSpeed = 2f * (currLine.dialogContent.ToCharArray().Length) / 10f;
+            readingSpeed = 1f * (currLine.dialogContent.ToCharArray().Length) / 10f;
 
             Sprite _dialogSprite = default;
             if (currLine.diceSelect != null)
@@ -671,7 +739,12 @@ public class AutoplayManager : MonoBehaviour
             }
             dialogImg.sprite = _dialogSprite;
 
-            if (!dialogueUI.activeInHierarchy)
+            if(inCG)
+            {
+                cgDialogUI.SetActive(true);
+            }
+
+            if (!dialogueUI.activeInHierarchy && !inCG)
             {
                 // dialogueUI.SetActive(true);
                 UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
@@ -714,16 +787,21 @@ public class AutoplayManager : MonoBehaviour
         {
             foreach(Characters c in characters)
             {
+                // Debug.Log(inCG);
                 if(currTag == c.tagName)
                 {
                     if(c.GetCurrentPosition() != 999) // if haven't in scene, wait for VFX to pull up the UIs
                     {
-                        if (!dialogueUI.activeInHierarchy)
+                        if (!dialogueUI.activeInHierarchy && !inCG)
                         {
                             dialogueUI.SetActive(true);
                             //UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
                             //StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
                             //yield return new WaitForSeconds(1f);
+                        }
+                        else if(inCG)
+                        {
+                            cgDialogUI.SetActive(true);
                         }
                         if (!nameUIs[c.nameDisplayPosition].activeInHierarchy)
                         {
@@ -842,12 +920,16 @@ public class AutoplayManager : MonoBehaviour
                                     
                                     UIControls.UISlide(characterUIs[c.GetCurrentPosition()], mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeInBounce);                                  
                                     StartCoroutine(DelayedSetActive(characterUIs[c.GetCurrentPosition()], true, 0.1f));
-                                    if(!dialogueUI.activeInHierarchy)
+                                    if(!dialogueUI.activeInHierarchy && !inCG)
                                     {
                                         UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
                                         StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
                                         yield return new WaitForSeconds(1f);
                                         nameUIs[c.nameDisplayPosition].SetActive(true);
+                                    }
+                                    else if(inCG)
+                                    {
+                                        cgDialogUI.SetActive(true);
                                     }
                                 }
                             }
@@ -897,15 +979,15 @@ public class AutoplayManager : MonoBehaviour
                         // Regular PC line
                         Sprite sprite2Display = default;
 
-                        // KP stand-by
-                        foreach (Characters kp in theKPs)
-                        {
-                            if (kp.GetCurrentPosition() != 999)
-                            {
-                                characterImgs[kp.GetCurrentPosition()].sprite = kp.emotionSprites[0];
-                                characterImgs[kp.GetCurrentPosition()].SetNativeSize();
-                            }
-                        }
+                        // KP stand-by DELETED FEATURE
+                        //foreach (Characters kp in theKPs)
+                        //{
+                        //    if (kp.GetCurrentPosition() != 999)
+                        //    {
+                        //        characterImgs[kp.GetCurrentPosition()].sprite = kp.emotionSprites[0];
+                        //        characterImgs[kp.GetCurrentPosition()].SetNativeSize();
+                        //    }
+                        //}
 
                         // emoSelect
                         if (currLine.emoSelect != null)
@@ -1001,12 +1083,16 @@ public class AutoplayManager : MonoBehaviour
                             {
                                 characterDisplayControls.IncreaseOneCharacter(c.GetCurrentPosition());
                                 StartCoroutine(DelayedSetActive(envCharacters[c.GetCurrentPosition()], true, 0.1f)); // for UpdateNumOnScreen(), keep this number small
-                                if (!dialogueUI.activeInHierarchy)
+                                if (!dialogueUI.activeInHierarchy && !inCG)
                                 {
                                     UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.fromButtom, LeanTweenType.easeOutBack);
                                     StartCoroutine(DelayedSetActive(dialogueUI, true, 0.1f));
                                     yield return new WaitForSeconds(1f);
                                     nameUIs[c.nameDisplayPosition].SetActive(true);
+                                }
+                                else if (inCG)
+                                {
+                                    cgDialogUI.SetActive(true);
                                 }
                             }
                             envCharacterSRs[c.GetCurrentPosition()].sprite = sprite2Display;
@@ -1097,7 +1183,14 @@ public class AutoplayManager : MonoBehaviour
             {
                 if(go.activeInHierarchy)
                 {
-                    UIControls.UISlide(go, mainCanvas, UIController.SlideType.toButtom, LeanTweenType.easeInOutSine);
+                    if(go.GetComponent<RectTransform>().anchoredPosition.x > 0)
+                    {
+                        UIControls.UISlide(go, mainCanvas, UIController.SlideType.toRight, LeanTweenType.easeInOutSine);
+                    }
+                    else
+                    {
+                        UIControls.UISlide(go, mainCanvas, UIController.SlideType.toLeft, LeanTweenType.easeInOutSine);
+                    }                  
                     StartCoroutine(DelayedSetActive(go, false, 1.1f));
                     StartCoroutine(UIControls.DelayedResetUIPosition(go, 1.12f));
                 }
