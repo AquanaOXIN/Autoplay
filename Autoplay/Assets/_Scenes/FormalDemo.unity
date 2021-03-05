@@ -1121,7 +1121,7 @@ MonoBehaviour:
   loadingTime: 3
   typingSpeed: 0.01
   readingSpeed: 2.5
-  progIndex: 27
+  progIndex: 0
   currTag: 
   currDialog: 
   theKPs: []
