@@ -953,6 +953,15 @@ public class AutoplayManager : MonoBehaviour
                             voiceMixer.SetFloat("Pitch", c.mixerPitch);
                             voiceAudio.PlayDelayed(0.15f);
 
+                            // 2nd Emotion Sprite Change
+                            if (currLine.charNum != null && currLine.emoSelect2 != null && currLine.timing != null)
+                            {
+                                if (characters[(int)currLine.charNum].GetCurrentPosition() != 999)
+                                {
+                                    StartCoroutine(SecondaryEmotionChange((int)currLine.charNum, (int)currLine.emoSelect2, (int)currLine.timing, currLine.dialogContent, readingSpeed));
+                                }
+                            }
+
                             if (c.displayName.Length > 0)
                             {
                                 nameDisplays[c.nameDisplayPosition].text = c.displayName.ToString();
@@ -1124,19 +1133,28 @@ public class AutoplayManager : MonoBehaviour
                         voiceMixer.SetFloat("Pitch", c.mixerPitch);
                         voiceAudio.PlayDelayed(0.5f);
 
+                        // 2nd Emotion Sprite Change
+                        if (currLine.charNum != null && currLine.emoSelect2 != null && currLine.timing != null)
+                        {
+                            if (characters[(int)currLine.charNum].GetCurrentPosition() != 999)
+                            {
+                                StartCoroutine(SecondaryEmotionChange((int)currLine.charNum, (int)currLine.emoSelect2, (int)currLine.timing, currLine.dialogContent, readingSpeed));
+                            }
+                        }
+
                         nameDisplays[c.nameDisplayPosition].text = c.displayName.ToString();
 
                         StartCoroutine(TypingDialogue(dialogDisplay, currLine.dialogContent, typingSpeed));
 
-                        // Timing Stuff
-                        if (currLine.timing != null)
-                        {
-                            float theTime = ((int)currLine.timing / currDialog.Length) * readingSpeed;
+                        //// Timing Stuff
+                        //if (currLine.timing != null)
+                        //{
+                        //    float theTime = ((int)currLine.timing / currDialog.Length) * readingSpeed;
 
-                            yield return new WaitForSeconds(theTime);
-                            // 2nd Emotion Change...
+                        //    yield return new WaitForSeconds(theTime);
+                        //    // 2nd Emotion Change...
 
-                        }
+                        //}
 
                         // SHOULD BE CHANGED
                         if (_status == 0 && currLine.emoSelect != null)
@@ -1227,6 +1245,15 @@ public class AutoplayManager : MonoBehaviour
             // Other lists ...
             theKPs = new List<Characters>();
         }
+    }
+
+    private IEnumerator SecondaryEmotionChange(int charNum, int emoSelect, int timing, string dialog, float voiceLength)
+    {
+        int stringChars = dialog.ToCharArray().Length;
+        float theTime = ((float)timing / (float)stringChars) * voiceLength;
+        // Debug.Log("timing: " + timing + ";dialog length: " + stringChars + ";voice length: " + voiceLength);
+        yield return new WaitForSeconds(theTime);
+        envCharacterSRs[characters[charNum].GetCurrentPosition()].sprite = characters[charNum].emotionSprites[emoSelect];
     }
 
     private IEnumerator DelayedSetActive(GameObject _go, bool _active, float delayTime)
