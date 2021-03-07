@@ -7,8 +7,8 @@
 [Verika]:[||||||||]Feature #1: You can attach different dialogue UI to your different characters, and you can also determine where to display the name of the characters according to their dialogue UI. 
 [Greenal]:[||||||||]功能2：立绘自动摆放。首先我们来加入一些角色吧。
 [RB]:[4|3|1||||||]What beautiful weather!
-[JK]:[0|0|1||||||]您吃了吗？
-[Greenal]:[||||||||]您的无需提前拖拽角色需要被摆放到的具体位置，而是直接在log中填写您所想让他们出现的相对位置，在展示时，本工具会为您的角色自动安排好位置。
+[JK]:[0|0|1||2|1|||2]您吃了吗？
+[Greenal]:[||||2|0|||19]您的无需提前拖拽角色需要被摆放到的具体位置，而是直接在log中填写您所想让他们出现的相对位置，在展示时，本工具会为您的角色自动安排好位置。
 [Verika]:[||||||||]Feature #3：You can change the pose of a character either at the beginning of a dialogue line or in the middle of the line.
 [Verika]:[||||||||] …Oh wait, that’s still under development!
 [RB]:[3||||||||]……
