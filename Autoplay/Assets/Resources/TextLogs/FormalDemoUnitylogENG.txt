@@ -1,0 +1,35 @@
+[STAGE]:[0|]
+[Greenal]:[1|0|1||||||]Hello, I am Greenal.
+[Verika]:[1|1|1||||||]Hello! My name is Verika. 
+[Verika]:[||||||||]Today, Greenal and I are going to show you a (not so) powerful tool for making replay videos of your TRPG campaigns.
+[Greenal]:[||||||||]First, let me show you some basic features of it:
+[Greenal]:[||||||||]Feature #0: As you can see just now, the tool includes the loading screen feature, which allows you to hide the in-progressed scene from your audience. 
+[Verika]:[||||||||]Feature #1: You can attach different dialogue UI to your different characters, and you can also determine where to display the name of the characters according to their dialogue UI. 
+[Greenal]:[||||||||]Feature #2: Automatically display and organize character sprites on the screen. Let's add some characters now.
+[RB]:[4|3|1||||||]What beautiful weather!
+[JK]:[0|0|1||2|1|||2]Have you had your dinner?
+[Greenal]:[||||2|0|||19]You don't have to drag and drop your character sprites in the scene window. Instead, you can simply assign the position in the txt log file, and the sprites will appear in the scene at a proper position. 
+[Verika]:[||||||||]Feature #3: You can change the pose of a character either at the beginning of a dialogue line or in the middle of the line.
+[Verika]:[||||||||] …Oh wait, that’s still under development!
+[RB]:[3||||||||]……
+[JK]:[4||||||||]……
+[Greenal]:[||||||||]Feature #4: Rolling dice. 
+[ROLL]:[|5||||]Greenal rolls a 1D10 = 5.
+[Greenal]:[||||||||]You can choose the dice sprite and SFX according to your aethetic. 
+[Verika]:[||||||||]Feature #5: Display an item on the screen. 
+[UIS]:[0||1|]
+[Verika]:[||||||||]Here is a sketch of some dolls. 
+[Verika]:[||||||||]And you can determine when you would like to hide the display from your audience. 
+[UIS]:[||0|]
+[Greenal]:[||||||||]Feature #6: Moving character sprites. Your character sprites can interact with each other in some simple ways. 
+[JK]:[1|3|||||||]!
+[Verika]:[||||||||]Feature #7：Change the background of the current stage. 
+[BG]:[1||]
+[Greenal]:[||||||||]Feature #8: Switch the environment. 
+[STAGE]:[1|]
+[JK]:[0||0||||||]……
+[RB]:[0||0||||||]……
+[CG]:[0|1]
+[Verika]:[||||||||]That’s pretty much all of the features we can demonstrate to you today. The tool is still under the development phase, and more features are going to be added soon.
+[CG]:[|0]
+[Greenal]:[||||||||]Thank you for watching, and see you next time!
