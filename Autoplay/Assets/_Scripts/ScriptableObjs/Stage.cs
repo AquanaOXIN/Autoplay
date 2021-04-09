@@ -8,6 +8,9 @@ public class Stage : ScriptableObject
     [Header("Environment Elements")]
     public Sprite backgroundSprite = default;
 
+    [Header("Initial Characters")]
+    public Characters[] characters;
+
     [Header("Audio Elements")]
     public AudioClip backgroundMusic = default;
     public AudioClip ambienceMusic = default;

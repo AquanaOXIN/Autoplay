@@ -6,6 +6,7 @@ using UnityEngine;
 public class Characters : ScriptableObject
 {
     [Header("Basic Info")]
+    public bool isKP = default;
     public string tagName = default; // name used in the log file for [TAG]
     public string displayName = default;
     public string fullName = default;

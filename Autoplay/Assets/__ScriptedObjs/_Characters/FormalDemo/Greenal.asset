@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 072f34bf126ec7b4d8bdc3b12c8f7720, type: 3}
   m_Name: Greenal
   m_EditorClassIdentifier: 
+  isKP: 1
   tagName: Greenal
   displayName: Greenal
   fullName: 
