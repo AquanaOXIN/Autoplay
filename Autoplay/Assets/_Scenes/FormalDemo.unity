@@ -580,7 +580,7 @@ RectTransform:
   - {fileID: 1781540997}
   - {fileID: 782194441}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1050,6 +1050,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bd1d66e7ea0bcc48859dcb22c41b611, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  progIndex: 0
+  currTag: 
+  currDialog: 
   logFiles:
   - {fileID: 4900000, guid: 7c181256d6af2ae40a374d0c201be282, type: 3}
   currentSceneNum: 0
@@ -1065,6 +1068,7 @@ MonoBehaviour:
   stages:
   - {fileID: 11400000, guid: ce2176779fc76eb48b8b29f5bfb92826, type: 2}
   - {fileID: 11400000, guid: d55749109e0a64947931bf1f62830613, type: 2}
+  - {fileID: 11400000, guid: a0000df2147b95b4984cc159874af6d1, type: 2}
   KP_as_PC: 0
   characters:
   - {fileID: 11400000, guid: f81bcf7844ad16946a37c2c27e309d44, type: 2}
@@ -1118,12 +1122,9 @@ MonoBehaviour:
   voiceMixer: {fileID: 24100000, guid: bce5c582ad5c2574cb0d53d445875a51, type: 2}
   SFXAudio: {fileID: 1194356114}
   BGMAudio: {fileID: 1910879775}
-  loadingTime: 3
+  loadingTime: 2
   typingSpeed: 0.01
   readingSpeed: 2.5
-  progIndex: 0
-  currTag: 
-  currDialog: 
   theKPs: []
 --- !u!4 &490282282
 Transform:
@@ -5535,7 +5536,7 @@ RectTransform:
   - {fileID: 1071546981}
   - {fileID: 742666942}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}

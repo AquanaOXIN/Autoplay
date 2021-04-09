@@ -10,6 +10,14 @@ using System.IO;
 
 public class AutoplayManager : MonoBehaviour
 {
+    [Header("Debug View")]
+    [SerializeField]
+    private int progIndex = 0;
+    [SerializeField]
+    private string currTag = default;
+    [SerializeField]
+    private string currDialog = default;
+
     [Header("Scene Log Setup")]
     [SerializeField]
     private TextAsset[] logFiles = default;
@@ -134,12 +142,7 @@ public class AutoplayManager : MonoBehaviour
     // Text Line related variables
     private string fullLog = default;
     private List<string> rawLines = default;
-    [SerializeField]
-    private int progIndex = 0;
-    [SerializeField]
-    private string currTag = default;
-    [SerializeField]
-    private string currDialog = default;
+
     private List<string> lineTagSeq = default;
     private List<string> lineDialogSeq = default;
     private ArrayList procdLines = default;
@@ -172,6 +175,8 @@ public class AutoplayManager : MonoBehaviour
 
     // Other
     private bool inCG = default;
+    private bool stageDialogPrompted = default;
+    private bool curtainPulled = default;
 
     private void Awake()
     {
@@ -188,6 +193,8 @@ public class AutoplayManager : MonoBehaviour
         cgUI.SetActive(false);
         cgDialogUI.SetActive(false);
         inCG = false;
+        stageDialogPrompted = false;
+        curtainPulled = false;
 
         nameImgs = new List<Image>();
         nameDisplays = new List<TextMeshProUGUI>();
@@ -287,8 +294,8 @@ public class AutoplayManager : MonoBehaviour
 
     private IEnumerator LoadingScene()
     {
-        StartCoroutine(transitionEffects.UIFadeOut(foregroundUI, loadingTime));
-        yield return new WaitForSeconds(loadingTime - 1f);
+        // StartCoroutine(transitionEffects.UIFadeOut(foregroundUI, loadingTime));
+        yield return new WaitForSeconds(loadingTime - 1.5f);
         ImportDialog(currentSceneNum);
     }
 
@@ -321,7 +328,7 @@ public class AutoplayManager : MonoBehaviour
             textPro.text = "";
         }
 
-        PullAwayCurtain();
+        // PullAwayCurtain();
         StartCoroutine(ExecutingLine());
     }
 
@@ -636,22 +643,35 @@ public class AutoplayManager : MonoBehaviour
         {
             readingSpeed = 4f;
             STAGELine currLine = (STAGELine)procdLines[progIndex];
+
+            // text display parts ...
+            dialogDisplay.text = "";
+            foreach(TextMeshProUGUI t in nameDisplays)
+            {
+                t.text = "";
+            }
+            UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.toButtom, LeanTweenType.easeInBack);
+            StartCoroutine(DelayedSetActive(dialogueUI, false, 1.1f));
+            StartCoroutine(UIControls.DelayedResetUIPosition(dialogueUI, 1.12f));
+
             if(currLine.stageSelect != null)
             {
                 // Audio
-                if (BGMAudio.clip != null)
-                {
-                    StartCoroutine(transitionEffects.AudioFadeOut(BGMAudio, 2f));
-                    yield return new WaitForSeconds(2.01f);
-                    BGMAudio.Stop();
-                }
+
                 if(stages[(int)currLine.stageSelect].backgroundMusic)
                 {
+                    if (BGMAudio.clip != null)
+                    {
+                        StartCoroutine(transitionEffects.AudioFadeOut(BGMAudio, 2f));
+                        yield return new WaitForSeconds(2.01f);
+                        BGMAudio.Stop();
+                    }
+
                     BGMAudio.clip = stages[(int)currLine.stageSelect].backgroundMusic;
                 }
                 else
                 {
-                    BGMAudio.clip = bgmClips[0];
+                    // BGMAudio.clip = bgmClips[0];
                 }
                 
                 StartCoroutine(transitionEffects.AudioFadeIn(BGMAudio, 5f, bgmVolumeCap));
@@ -669,8 +689,44 @@ public class AutoplayManager : MonoBehaviour
                     StartCoroutine(transitionEffects.UIFadeIn(foregroundUI, 1f));
                     StartCoroutine(transitionEffects.FadeOut(envBackground, 1f));
                     yield return new WaitForSeconds(1.01f);
-
                 }
+
+                // character display parts ... (Leave)
+
+                for(int i = 0; i < envCharacters.Length; i++)
+                {
+                    foreach(Characters c in characters)
+                    {
+                        if(c.isKP == false)
+                        {
+                            if (c.GetCurrentPosition() == i)
+                            {
+                                envCharPositionStatus[envCharacters[c.GetCurrentPosition()]] = (int)0;
+                                characterDisplayControls.DecreaseOneCharacter(c.GetCurrentPosition());
+                                StartCoroutine(DelayedSetActive(envCharacters[c.GetCurrentPosition()], false, 0.95f)); // for UpdateNumOnScreen() keep this time bigger
+                                c.SetCurrentPosition(999);
+                                yield return new WaitForSeconds(0.05f);
+                            }
+                        }
+                    }
+                }
+
+                yield return new WaitForSeconds(1.1f); // 1.51f
+
+                // Characters (Import)
+                int posCounter = 0;
+                foreach (Characters c in stages[(int)currLine.stageSelect].characters)
+                {
+                    c.SetCurrentPosition(posCounter);
+                    envCharacterSRs[posCounter].sprite = c.emotionSprites[0];
+                    envCharPositionStatus[envCharacters[posCounter]] = (int)1;
+                    envCharacters[posCounter].transform.localPosition = Vector3.up * (c.offsetY);
+                    characterDisplayControls.IncreaseOneCharacter(c.GetCurrentPosition());
+                    StartCoroutine(DelayedSetActive(envCharacters[c.GetCurrentPosition()], true, 0.1f));
+                    yield return new WaitForSeconds(0.1f);
+                    posCounter++;
+                }
+
                 if (stages[(int)currLine.stageSelect].backgroundSprite)
                 {
                     envBGSR.sprite = stages[(int)currLine.stageSelect].backgroundSprite;
@@ -682,6 +738,13 @@ public class AutoplayManager : MonoBehaviour
                 StartCoroutine(transitionEffects.UIFadeOut(foregroundUI, 1f));
                 StartCoroutine(transitionEffects.FadeIn(envBackground, 1f));
                 yield return new WaitForSeconds(1.2f);
+
+                if(!curtainPulled)
+                {
+                    PullAwayCurtain();
+                    curtainPulled = true;
+                }
+                
             }
             else
             {
@@ -843,6 +906,8 @@ public class AutoplayManager : MonoBehaviour
                     // If it's tagged as KP ...
                     if(isKP)
                     {
+                        characterDisplayControls.ResetAlpha(1);
+
                         if (!KP_as_PC)
                         {
                             // KP line 
@@ -902,7 +967,7 @@ public class AutoplayManager : MonoBehaviour
 
                             if (_status == 1)
                             {
-                                StartCoroutine(transitionEffects.UIFadeIn(characterUIs[c.GetCurrentPosition()], 1f));
+                                StartCoroutine(transitionEffects.UIFadeIn(characterUIs[c.GetCurrentPosition()], 0.5f));
                                 characterUIs[c.GetCurrentPosition()].SetActive(true);
                                 // dialogueUI.SetActive(true);
                                 // Add LeanTween ...
@@ -922,6 +987,7 @@ public class AutoplayManager : MonoBehaviour
                             }
                             else if (_status == null)
                             {
+                                // Debug.Log(c.GetCurrentPosition());
                                 if (!characterUIs[c.GetCurrentPosition()].activeInHierarchy)
                                 {
                                     
@@ -1166,20 +1232,26 @@ public class AutoplayManager : MonoBehaviour
                         // 
                         if (_status == 0)
                         {
+                            envCharPositionStatus[envCharacters[c.GetCurrentPosition()]] = (int)0;
                             dialogDisplay.text = "";
                             nameDisplays[c.nameDisplayPosition].text = "";
                             characterDisplayControls.DecreaseOneCharacter(c.GetCurrentPosition());
-                            StartCoroutine(DelayedSetActive(envCharacters[c.GetCurrentPosition()], false, 1.5f)); // for UpdateNumOnScreen() keep this time bigger
+                            StartCoroutine(DelayedSetActive(envCharacters[c.GetCurrentPosition()], false, 0.95f)); // for UpdateNumOnScreen() keep this time bigger (if buggy then -> 1.5f)
                             c.SetCurrentPosition(999);
                             // dialogueUI.SetActive(false); // should be LeanTween VFX
                             UIControls.UISlide(dialogueUI, mainCanvas, UIController.SlideType.toButtom, LeanTweenType.easeInBack);
                             StartCoroutine(DelayedSetActive(dialogueUI, false, 1.1f));
                             StartCoroutine(UIControls.DelayedResetUIPosition(dialogueUI, 1.12f));
-                            yield return new WaitForSeconds(1.15f);
+                            yield return new WaitForSeconds(1.51f);
                         }
                         // lineComplete = true;
                     }
                 }
+            }
+
+            if (stageDialogPrompted == false)
+            {
+                stageDialogPrompted = true;
             }
         }
 

@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 944f9dc9d3a6a4a46b3ab24a16fad0d7, type: 3}
   m_Name: Stage2
   m_EditorClassIdentifier: 
-  backgroundSprite: {fileID: 0}
+  backgroundSprite: {fileID: 21300000, guid: d70d6e41abbd088419e2e92c21929dc3, type: 3}
+  characters:
+  - {fileID: 11400000, guid: 5e870c8f773149241aa55b61d1a4be77, type: 2}
+  - {fileID: 11400000, guid: fcf067564a64ac24a98e40e582d40dff, type: 2}
   backgroundMusic: {fileID: 0}
   ambienceMusic: {fileID: 0}

@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: Stage1
   m_EditorClassIdentifier: 
   backgroundSprite: {fileID: 21300000, guid: db2a659a1293ae645a7a317609eae4b4, type: 3}
+  characters: []
   backgroundMusic: {fileID: 8300000, guid: 5598b10f4202cfb4fb4f51698069ade7, type: 3}
   ambienceMusic: {fileID: 0}
