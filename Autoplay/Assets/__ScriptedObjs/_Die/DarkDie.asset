@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65daa00eac72d6c42acad4254f4e373b, type: 3}
   m_Name: DarkDie
   m_EditorClassIdentifier: 
-  dieSprite: {fileID: 21300000, guid: f2f76b91817314441b36876599a2ba65, type: 3}
-  dialogBGSprite: {fileID: 21300000, guid: b620b67bfcf5c8e439d91cae01f8ed1e, type: 3}
+  dieSprite: {fileID: 21300000, guid: c0bf2fa76cf019a499e9236caa3ddc6b, type: 3}
+  dialogBGSprite: {fileID: 21300000, guid: fe1fd0988d6c3a34a8f83c8954072ed3, type: 3}
   rollDiceSFX:
   - {fileID: 8300000, guid: 902e6de10aaca4f6085115dbb2f0fd28, type: 3}
   - {fileID: 8300000, guid: 7c763e87ab2014ed2baf1b2b03d4c852, type: 3}
