@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 072f34bf126ec7b4d8bdc3b12c8f7720, type: 3}
+  m_Name: "\u8DEF\u4EBA\u7532"
+  m_EditorClassIdentifier: 
+  isKP: 0
+  tagName: "\u8DEF\u4EBA\u7532"
+  displayName: "\u8DEF\u4EBA\u7532"
+  fullName: 
+  nameInOtherLanguage: []
+  nameDisplayPosition: 0
+  dialogBGSprite: {fileID: 21300000, guid: 964aa2e3951e55e448047172f9a96dab, type: 3}
+  nameBGSprite: {fileID: 0}
+  emotionSprites:
+  - {fileID: 21300000, guid: 481084638266bbe4599b51cb0c52ae88, type: 3}
+  animated: 0
+  animatedCharacter: {fileID: 0}
+  audioFolder: "\u8DEF\u4EBA\u7532"
+  mixerPitch: 0.82
+  offsetY: -0.3
+  defaultPosition: 999

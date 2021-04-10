@@ -836,8 +836,8 @@ public class AutoplayManager : MonoBehaviour
             {
                 diceDisplay.text = currLine.result.ToString();
             }
-
-            yield return new WaitForSeconds(readingSpeed - 1.2f);
+            float diceStayTime = (readingSpeed > 1.8f) ? readingSpeed - 1.2f : readingSpeed; 
+            yield return new WaitForSeconds(diceStayTime);
             UIControls.UISlide(diceUI, mainCanvas, UIController.SlideType.toTop, LeanTweenType.easeInOutBack);
             StartCoroutine(DelayedSetActive(diceUI, false, 1.1f));
             StartCoroutine(UIControls.DelayedResetUIPosition(diceUI, 1.15f));
