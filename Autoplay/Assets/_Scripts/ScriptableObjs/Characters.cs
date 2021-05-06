@@ -20,7 +20,10 @@ public class Characters : ScriptableObject
 
     [Header("Animations")]
     public bool animated = default;
-    public GameObject animatedCharacter = default;
+    public string envName = default;
+    // public GameObject animatedCharacter = default;
+    public string[] animStateName = default;
+
 
     [Header("Audio Related")]
     public string audioFolder = default;
@@ -33,10 +36,14 @@ public class Characters : ScriptableObject
     [SerializeField]
     private int defaultPosition = 999;
     private int currentPosition = 999;
+    [SerializeField]
+    private int defaultState = 999;
+    private int currentState = 999;
 
     private void OnEnable()
     {
         currentPosition = defaultPosition;
+        currentState = defaultState;
     }
 
     public void LoadVoiceAudioFiles(int currentSceneNum)
@@ -57,5 +64,15 @@ public class Characters : ScriptableObject
     public int GetCurrentPosition()
     {
         return currentPosition;
+    }
+
+    public void SetCurrentState(int _stateNum)
+    {
+        currentState = _stateNum;
+    }
+
+    public int GetCurrentState()
+    {
+        return currentState;
     }
 }
