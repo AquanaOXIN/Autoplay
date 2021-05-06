@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 072f34bf126ec7b4d8bdc3b12c8f7720, type: 3}
+  m_Name: "\u5C0F\u7C89"
+  m_EditorClassIdentifier: 
+  isKP: 0
+  tagName: "\u5C0F\u7C89"
+  displayName: "\u5C0F\u7C89"
+  fullName: 
+  nameInOtherLanguage: []
+  nameDisplayPosition: 1
+  dialogBGSprite: {fileID: 21300000, guid: 58d025480940c6d4592215b2c3cd1e3b, type: 3}
+  nameBGSprite: {fileID: 0}
+  emotionSprites: []
+  animated: 1
+  envName: AnimCharPink
+  animStateName:
+  - Idle
+  - Happy
+  audioFolder: "\u5C0F\u7C89"
+  mixerPitch: 1
+  offsetY: 0
+  defaultPosition: 999
