@@ -6207,7 +6207,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1941082714}
   m_Layer: 0
-  m_Name: SimpleModeCharacters
+  m_Name: SimpleModeCharacters(Change these child objs!)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
