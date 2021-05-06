@@ -17,6 +17,7 @@ public class AutoplayManager : MonoBehaviour
     private string currTag = default;
     [SerializeField]
     private string currDialog = default;
+    private string displayingChar = default;
 
     [Header("Scene Log Setup")]
     [SerializeField]
@@ -1001,12 +1002,16 @@ public class AutoplayManager : MonoBehaviour
                     {
                         GameObject currAnimObj = default;
 
-                        foreach (Transform child in simpleModeCharacters.transform)
+                        if(displayingChar != currTag)
                         {
-                            child.gameObject.SetActive(false);
-                            currAnimObj = simpleModeCharacters.transform.Find(c.envName).gameObject;
-                            currAnimObj.SetActive(true);
+                            foreach (Transform child in simpleModeCharacters.transform)
+                            {
+                                child.gameObject.SetActive(false);
+                            }
                         }
+
+                        currAnimObj = simpleModeCharacters.transform.Find(c.envName).gameObject;
+                        currAnimObj.SetActive(true);
 
                         // emoSelect
                         if (currLine.emoSelect != null)
@@ -1026,7 +1031,10 @@ public class AutoplayManager : MonoBehaviour
                             {
                                 // sprite2Display = characterImgs[c.GetCurrentPosition()].sprite;
                                 // sprite2Display = c.emotionSprites[1];
-                                currAnimObj.GetComponent<CharacterAnimationController>().PlayAnimation(c.GetCurrentState());
+                                if(currTag != displayingChar)
+                                {
+                                    currAnimObj.GetComponent<CharacterAnimationController>().PlayAnimation(c.GetCurrentState());
+                                }       
                             }
                         }
 
@@ -1099,6 +1107,8 @@ public class AutoplayManager : MonoBehaviour
                             StartCoroutine(UIControls.DelayedResetUIPosition(dialogueUI, 1.12f));
                             yield return new WaitForSeconds(1.15f);
                         }
+
+                        displayingChar = currTag;
                     }
                     else
                     {
